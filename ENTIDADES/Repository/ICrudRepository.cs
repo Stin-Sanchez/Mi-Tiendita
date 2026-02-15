@@ -1,0 +1,20 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ENTIDADES.Repository
+{
+    public interface ICrudRepository <T> where T: class
+
+    {
+        IEnumerable<T> ObtenerTodos();
+        T ObtenerPorId(object id);
+        void Insertar(T obj);
+        void Actualizar(T obj);
+        void Eliminar(object id);
+        void Guardar();
+
+    }
+}
