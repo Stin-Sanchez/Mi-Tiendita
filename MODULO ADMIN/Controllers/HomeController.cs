@@ -33,6 +33,7 @@ namespace MODULO_ADMIN.Controllers
         }
 
      
+        [HttpGet]
         public JsonResult ListarUsuarios()
         {
             // Llamamos a la capa de negocio
