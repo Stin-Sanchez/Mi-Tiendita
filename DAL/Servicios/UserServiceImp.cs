@@ -43,7 +43,7 @@ namespace DAL.Servicios
 
         public void Insertar(USUARIOS usuario)
         {
-            // ¡Aquí entra la Arquitectura Limpia! Validamos antes de tocar la base de datos
+            //  Validamos antes de tocar la base de datos
             if (usuario == null)
             {
                 throw new ArgumentNullException("El user no puede ser vacio or null.");
