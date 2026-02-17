@@ -10,7 +10,7 @@ namespace DAL.Servicios
     public interface IUserService
     {
         IEnumerable<USUARIOS> ObtenerTodos();
-        USUARIOS ObtenerPorId(USUARIOS id);
+        USUARIOS ObtenerPorId(long id);
         USUARIOS Insertar(USUARIOS usuario);
         USUARIOS Actualizar(USUARIOS usuario);
         void Eliminar(long id);

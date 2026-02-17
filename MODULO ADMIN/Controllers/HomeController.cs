@@ -63,8 +63,27 @@ namespace MODULO_ADMIN.Controllers
                 }
                 else
                 {
-                    resultado = _userService.Actualizar(usuario);
-                    mensajeRespuesta = "Usuario actualizado correctamente.";
+                    // 1. Buscamos el usuario tal como está en la base de datos (con su CLAVE y FECHA intactas)
+                   
+                    var usuarioOriginal = _userService.ObtenerPorId(usuario.ID_USUARIO);
+
+                    if (usuarioOriginal != null)
+                    {
+                        // 2. Sobrescribimos SOLO las propiedades que el usuario editó en el modal
+                        usuarioOriginal.NOMBRE = usuario.NOMBRE;
+                        usuarioOriginal.APELLIDO = usuario.APELLIDO;
+                        usuarioOriginal.CORREO = usuario.CORREO;
+                        usuarioOriginal.ACTIVO = usuario.ACTIVO;
+
+                        // 3. Mandamos a actualizar el objeto original. 
+                        // Como nunca tocamos usuarioOriginal.CLAVE, mantiene su valor encriptado y pasa la validación.
+                        resultado = _userService.Actualizar(usuarioOriginal);
+                        mensajeRespuesta = "Usuario actualizado correctamente.";
+                    }
+                    else
+                    {
+                        mensajeRespuesta = "Error: No se encontró el usuario a actualizar.";
+                    }
                 }
             }
             catch (Exception ex)
