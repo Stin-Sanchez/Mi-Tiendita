@@ -31,26 +31,34 @@ namespace ENTIDADES.RepositoryImp
             return table.Find(id);
         }
 
-        public void Insertar(T obj)
+        public T Insertar(T obj)
         {
             table.Add(obj);
+            _context.SaveChanges();
+
+            return obj; 
         }
 
-        public void Actualizar(T obj)
+        public T Actualizar(T obj)
         {
-            table.Attach(obj);
-            _context.Entry(obj).State = EntityState.Modified;
+           table.Attach(obj);
+           _context.Entry(obj).State = EntityState.Modified;
+            _context.SaveChanges();
+
+            return obj;
         }
 
         public void Eliminar(object id)
         {
             T existing = table.Find(id);
-            table.Remove(existing);
+            if(existing != null)
+            {
+                table.Remove(existing);
+                _context.SaveChanges();
+            }
+           
         }
 
-        public void Guardar()
-        {
-            _context.SaveChanges();
-        }
+      
     }
 }
