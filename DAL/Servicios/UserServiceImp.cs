@@ -113,7 +113,7 @@ namespace DAL.Servicios
         /// <summary>
         /// Busco los datos completos de un usuario específico.
         /// </summary>
-        public USUARIOS ObtenerPorId(USUARIOS id)
+        public USUARIOS ObtenerPorId(long id)
         {
             // Delego la operación de lectura al repositorio.
             return _UsuarioRepo.ObtenerPorId(id);
@@ -125,7 +125,7 @@ namespace DAL.Servicios
         public IEnumerable<USUARIOS> ObtenerTodos()
         {
             // Delego la lectura masiva al repositorio.
-            return _UsuarioRepo.ObtenerTodos();
+            return _UsuarioRepo.ObtenerTodos().Where(u => u.ACTIVO == true);
         }
     }
 }
