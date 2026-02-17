@@ -54,6 +54,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Servicios\IUserService.cs" />
     <Compile Include="Servicios\UserServiceImp.cs" />
+    <Compile Include="Servicios\UtilService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

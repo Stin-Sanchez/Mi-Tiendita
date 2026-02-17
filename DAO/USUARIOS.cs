@@ -8,6 +8,12 @@ namespace ENTIDADES
 
     public partial class USUARIOS
     {
+        public USUARIOS()
+        {
+            this.FECHA_CREACION = DateTime.Now;
+            this.RESTABLECER = true;
+        }
+
         [Key]
         public int ID_USUARIO { get; set; }
 

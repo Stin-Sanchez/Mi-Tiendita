@@ -17,15 +17,12 @@
 
         <div class="row">
 
-            <div class="col-12">
+            <div class="col-12 mb-3">
 
                 <button type="button" class="btn btn-success " onclick="abrirModal(null)">Crear nuevo usuario</button>
 
-
             </div>
-
-
-            <hr />
+            <hr  class="mb-4"/>
 
 
             <table id="table_usuarios" class="display cell-border" style="width:100%">
@@ -59,15 +56,15 @@
 <div class="modal fade" id="FormModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header" >
+            <div class="modal-header">
                 <h1 class="modal-title fs-5" id="exampleModalLabel">Usuario</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body g-2">
+            <div class="modal-body ">
 
-                <input id="txtId" type="hidden" value="0"/>
+                <input id="txtId" type="text" value="0" />
 
-                <div class="row">
+                <div class="row g-2">
 
                     <div class="col-sm-6">
                         <label for="txtNombres" class="form-label">Nombres</label>
@@ -92,7 +89,7 @@
                             <option selected>Seleccione</option>
                             <option value="1">Si</option>
                             <option value="0">No</option>
-                           
+
                         </select>
 
                     </div>
@@ -100,6 +97,20 @@
 
 
                 </div>
+
+                <div class="row mt-2">
+                    <div class="col-12">
+
+                        <div id="mensajeError" class="alert alert-danger" role="alert">
+                            A simple danger alert—check it out!
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
 
             </div>
             <div class="modal-footer">
@@ -113,11 +124,12 @@
 
 @section scripts{
 
-    var tablaUsuarios;
-
-
+   
     <script>
-      
+
+        var tablaUsuarios;
+        var filaSeleccionada;
+
             tablaUsuarios = $("#table_usuarios").DataTable({
                 responsive: true,
                 ordering: false,
@@ -148,14 +160,14 @@
                     },
                     {
                         "defaultContent": ' <button type="button" class="btn btn-primary btn-sm btn-editar"> <i class="fas fa-pen "></i> </button>' +
-                            ' <button type="button" class="btn btn-danger btn-sm ms-2"> <i class="fas fa-trash "></i> </button>',
+                            ' <button type="button" class="btn btn-danger btn-sm ms-2 btn-eliminar"> <i class="fas fa-trash "></i> </button>',
                         "orderable": false,
                         "searchable": false,
                         "width": "70px"
 
                     }
                 ],
-                "languaje": {
+                "language": {
                     "url": "//cdn.datatables.net/plug-ins/2.3.7/i18n/es-ES.json"
                 }
 
@@ -171,6 +183,7 @@
             $("#txtApellidos").val("");
             $("#txtEmail").val("");
             $("#cmbActivo").val(1);
+            $("#mensajeError").hide();
 
 
             if (json != null) {
@@ -190,7 +203,7 @@
 
         $("#table_usuarios tbody").on("click", '.btn-editar', function () {
 
-            var filaSeleccionada = $(this).closest("tr");
+             filaSeleccionada = $(this).closest("tr");
 
             var data = tablaUsuarios.row(filaSeleccionada).data();
 
@@ -199,10 +212,130 @@
 
         })
 
+        $("#table_usuarios tbody").on("click", '.btn-eliminar', function () {
+
+            var usuarioSeleccionado = $(this).closest("tr");
+
+            var data = tablaUsuarios.row(usuarioSeleccionado).data();
+
+            swal({
+                title: "Esta seguro?",
+                text: "Desea eliminar a este usuario? esta accion es ireversible",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-danger",
+                confirmButtonText: "Si",
+                cancelButtonText: "No",
+                closeOnConfirm: false,
+                closeOnCancel: false
+            },
+                function (isConfirm) {
+
+                    jQuery.ajax({
+                        url: '@Url.Action("EliminarUsuario", "Home")',
+                        type: "POST",
+                        data: JSON.stringify({ id: data.ID_USUARIO }),
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+
+                            debugger;
+
+                            if (data.resultado) {
+                                if (isConfirm) {
+                                    tablaUsuarios.row(usuarioSeleccionado).remove().draw();
+                                    swal("Usuario eliminado!", "El usuario seleccionado fue eliminado con exito", "success");
+                                }
+                                else {
+                                    swal("Cancelled", "Your imaginary file is safe :)", "error");
+                                }
+                            } else {
+                                swal("Nose pudo eliminar", data.mensaje, "error");
+                            }
+                        },
+                        error: function (error) {
+                            console.log(error)
+                        },
+                      
+                    });
+                    
+                });
+
+            console.log(data);
+
+
+        })
+
 
         function guardarUsuario() {
 
+            var USUARIOS = {
+
+                ID_USUARIO: parseInt($("#txtId").val()) || 0,
+                ACTIVO: $("#cmbActivo").val() == 1 ? true : false,
+                NOMBRE: $("#txtNombres").val(),
+                APELLIDO: $("#txtApellidos").val(),
+                CORREO: $("#txtEmail").val()
+
+            }
+
+
+            jQuery.ajax({
+
+                url: '@Url.Action("GuardarUsuario", "Home")',
+                type: "POST",
+                data: JSON.stringify({ usuario: USUARIOS }),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
+                    $(".modal-body").LoadingOverlay("hide");
+
+                    //Usuario nuevo
+                    if (USUARIOS.ID_USUARIO == 0) {
+                        if (data.resultado != 0) {
+
+                            USUARIOS.ID_USUARIO = data.resultado;
+                            tablaUsuarios.row.add(USUARIOS).draw(false);
+                            $("#FormModal").modal("hide");
+
+                        } else {
+                            $("#mensajeError").text(data.mensaje);
+                            $("#mensajeError").show();
+                        }
+                    }
+
+                    //Usuario actualizar
+                    else {
+                        if (data.resultado != null && data.resultado.ID_USUARIO > 0) {
+                            tablaUsuarios.row(filaSeleccionada).data(data.resultado).draw(false);
+                            filaSeleccionada = null;
+                            $("#FormModal").modal("hide");
+                            alert(data.mensaje);
+                        } else {
+                            $("#mensajeError").text(data.mensaje);
+                            $("#mensajeError").show();
+                        }
+
+                    }
+
+
+                }, error: function (error) {
+                    $(".modal-body").LoadingOverlay("hide");
+                    console.log("Error en la petición AJAX:", error);
+                    alert("Ocurrió un error de conexión.");
+                },
+                beforeSend: function () {
+                    $(".modal-body").LoadingOverlay("show", {
+                        imageResizeFactor: 2,
+                        text: "Cargando..",
+                        size: 14
+                    })
+
+                }
+            });
         }
+        
 
     </script>
 }

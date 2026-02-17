@@ -11,10 +11,10 @@ namespace ENTIDADES.Repository
     {
         IEnumerable<T> ObtenerTodos();
         T ObtenerPorId(object id);
-        void Insertar(T obj);
-        void Actualizar(T obj);
+        T Insertar(T obj);
+        T Actualizar(T obj);
         void Eliminar(object id);
-        void Guardar();
+     
 
     }
 }

@@ -11,9 +11,9 @@ namespace DAL.Servicios
     {
         IEnumerable<USUARIOS> ObtenerTodos();
         USUARIOS ObtenerPorId(USUARIOS id);
-        void Insertar(USUARIOS usuario);
-        void Actualizar(USUARIOS usuario);
+        USUARIOS Insertar(USUARIOS usuario);
+        USUARIOS Actualizar(USUARIOS usuario);
         void Eliminar(long id);
-        void Guardar();
+      
     }
 }
