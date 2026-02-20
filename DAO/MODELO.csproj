@@ -42,19 +42,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CARRITO.cs" />
-    <Compile Include="CATEGORIAS.cs" />
-    <Compile Include="CLIENTES.cs" />
-    <Compile Include="DEPARTAMENTO.cs" />
-    <Compile Include="DETALLE_VENTAS.cs" />
-    <Compile Include="DISTRITO.cs" />
-    <Compile Include="MARCAS.cs" />
-    <Compile Include="PRODUCTOS.cs" />
+    <Compile Include="DTOS\HistorialVentasDTO.cs" />
+    <Compile Include="ENTITIES\CARRITO.cs" />
+    <Compile Include="ENTITIES\CATEGORIAS.cs" />
+    <Compile Include="ENTITIES\CLIENTES.cs" />
+    <Compile Include="ENTITIES\DEPARTAMENTO.cs" />
+    <Compile Include="ENTITIES\DETALLE_VENTAS.cs" />
+    <Compile Include="ENTITIES\DISTRITO.cs" />
+    <Compile Include="ENTITIES\MARCAS.cs" />
+    <Compile Include="ENTITIES\PRODUCTOS.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PROVINCIA.cs" />
-    <Compile Include="sysdiagrams.cs" />
-    <Compile Include="USUARIOS.cs" />
-    <Compile Include="VENTAS.cs" />
+    <Compile Include="ENTITIES\PROVINCIA.cs" />
+    <Compile Include="ENTITIES\sysdiagrams.cs" />
+    <Compile Include="ENTITIES\USUARIOS.cs" />
+    <Compile Include="ENTITIES\VENTAS.cs" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />

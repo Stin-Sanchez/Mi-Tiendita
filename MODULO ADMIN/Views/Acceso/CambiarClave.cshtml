@@ -1,0 +1,102 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Cambiar Contraseña</title>
+    <link href="~/Content/Site.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body class="bg-light">
+    <div id="layoutAuthentication">
+        <div id="layoutAuthentication_content">
+            <main>
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-5">
+                            <div class="card shadow-lg border-0 rounded-3 my-5">
+
+                                <div class="card-header bg-white border-0 p-4 pb-0">
+                                    <h3 class="text-center fw-bold text-dark mb-1">Seguridad</h3>
+                                    <p class="text-center text-muted small mb-0">Actualiza tus credenciales</p>
+                                </div>
+
+                                <div class="card-body p-5 pt-4">
+                                    <form action="@Url.Action("CambiarClave","Acceso")" method="post">
+
+                                        <input class="form-control" type="text" value=" @TempData["idUsuario"]" name="idUsuario" />
+
+                                        <div class="input-group mb-4">
+                                            <span class="input-group-text bg-light border-end-0">
+                                                <i class="fas fa-key text-muted"></i>
+                                            </span>
+                                            <div class="form-floating">
+                                                <input class="form-control border-start-0 ps-0" type="password" placeholder="Contraseña actual" name="claveActual" value="@ViewData["vclave"]"/>
+                                                <label for="inputCurrentPass" class="text-muted">Contraseña actual</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="input-group mb-4">
+                                            <span class="input-group-text bg-light border-end-0">
+                                                <i class="fas fa-lock text-primary"></i>
+                                            </span>
+                                            <div class="form-floating">
+                                                <input class="form-control border-start-0 ps-0" type="password" placeholder="Nueva contraseña" name="nuevaClave" />
+                                                <label for="inputNewPass" class="text-muted">Nueva contraseña</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="input-group mb-4">
+                                            <span class="input-group-text bg-light border-end-0">
+                                                <i class="fas fa-shield-alt text-success"></i>
+                                            </span>
+                                            <div class="form-floating">
+                                                <input class="form-control border-start-0 ps-0" type="password" placeholder="Confirmar contraseña" name="confirmarClave" />
+                                                <label for="inputConfirmPass" class="text-muted">Confirmar nueva contraseña</label>
+                                            </div>
+                                        </div>
+
+
+                                        @{ if (ViewBag.Error != null)
+                                                        {
+                                            <div class="form-floating mb-3">
+
+                                                <div class="alert alert-danger" role="alert">
+                                                    @ViewBag.Error
+                                                </div>
+
+                                            </div> } 
+                                            }
+
+                                        <div class="d-grid mt-5">
+                                            <button class="btn btn-primary btn-lg rounded-3 shadow-sm fw-bold" type="submit">
+                                                <i class="fas fa-sync-alt me-2"></i> Actualizar Contraseña
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div class="card-footer text-center bg-white border-0 py-3">
+                                    <div class="small">
+                                        <a href="@Url.Action("Index","Acceso")" class="text-muted text-decoration-none">
+                                            <i class="fas fa-arrow-left me-1"></i> Volver al inicio
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="~/Scripts/bootstrap.bundle.js"></script>
+    <script src="~/Scripts/fontawesome/fontawesome.min.js"></script>
+
+</body>
+</html>

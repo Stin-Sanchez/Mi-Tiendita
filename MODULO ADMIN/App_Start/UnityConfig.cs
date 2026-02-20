@@ -18,8 +18,17 @@ namespace MODULO_ADMIN
             // register all your components with the container here
             // it is NOT necessary to register your controllers
             
-              container.RegisterType(typeof(ICrudRepository<>), typeof(RepositoryImp<>));
+                container.RegisterType(typeof(ICrudRepository<>), typeof(RepositoryImp<>));
+                container.RegisterType<IUsuarioRepository, UsuarioRepositoryImp>();
+                container.RegisterType<IProductoRepository, ProductoRepositoryImp>();
+                container.RegisterType<IVentaRepository, VentaRepositoryImp>();
+                container.RegisterType<IUsuarioRepository, UsuarioRepositoryImp>();
                 container.RegisterType <IUserService, UserServiceImp>();
+                container.RegisterType <IMarcaService, MarcaServiceImp>();
+                container.RegisterType <ICategoriasService, CategoriasServiceImp>();
+                container.RegisterType <IProductoService, ProductoServiceImp>();
+                container.RegisterType <IVentaService, VentaServiceImp>();
+
 
             DependencyResolver.SetResolver(new UnityDependencyResolver(container));
         }

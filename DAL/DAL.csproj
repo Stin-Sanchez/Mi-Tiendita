@@ -52,18 +52,28 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Servicios\IClienteService.cs" />
+    <Compile Include="Servicios\ServiciosImp\CategoriasServiceImp.cs" />
+    <Compile Include="Servicios\ICategoriasService.cs" />
+    <Compile Include="Servicios\IMarcaService.cs" />
+    <Compile Include="Servicios\IProductoService.cs" />
     <Compile Include="Servicios\IUserService.cs" />
-    <Compile Include="Servicios\UserServiceImp.cs" />
+    <Compile Include="Servicios\IVentaService.cs" />
+    <Compile Include="Servicios\ServiciosImp\ClienteServiceImp.cs" />
+    <Compile Include="Servicios\ServiciosImp\MarcaServiceImp.cs" />
+    <Compile Include="Servicios\ServiciosImp\ProductoServiceImp.cs" />
+    <Compile Include="Servicios\ServiciosImp\UserServiceImp.cs" />
     <Compile Include="Servicios\UtilService.cs" />
+    <Compile Include="Servicios\ServiciosImp\VentaServiceImp.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DAO\ENTITIES.csproj">
+    <ProjectReference Include="..\DAO\MODELO.csproj">
       <Project>{ee3af549-3526-4014-a8bb-a8c104292601}</Project>
-      <Name>ENTITIES</Name>
+      <Name>MODELO</Name>
     </ProjectReference>
     <ProjectReference Include="..\ENTIDADES\DAO.csproj">
       <Project>{5abaae2f-5ace-449e-a85a-793eeb9d049d}</Project>

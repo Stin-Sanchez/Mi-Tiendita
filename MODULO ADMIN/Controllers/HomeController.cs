@@ -6,23 +6,29 @@ using System.Web.Mvc;
 using ENTIDADES;
 using DAL;
 using DAL.Servicios;
-
+using System.Threading.Tasks;
+using DAO.DTOS;
+using System.Data;
+using ClosedXML.Excel;
+using System.IO;
+using System.Configuration;
 
 namespace MODULO_ADMIN.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
-        // 1. Declaras tu servicio a nivel de clase, de solo lectura
+        //Inyectamos las dependecias correspondientes
         private readonly IUserService _userService;
-       
+        private readonly IVentaService _ventaService;
+        private readonly IProductoService _productoService;
 
-        public HomeController(UserServiceImp userService)
+        public HomeController(IUserService userService, IVentaService ventaService, IProductoService productoService)
         {
             _userService = userService;
-           
+            _ventaService = ventaService;
+            _productoService = productoService;
         }
-
-      
 
         public ActionResult Index()
         {
@@ -36,21 +42,25 @@ namespace MODULO_ADMIN.Controllers
 
      
         [HttpGet]
-        public JsonResult ListarUsuarios()
+        public async Task<JsonResult> ListarUsuarios()
         {
             // Llamamos a la capa de negocio
-            List<USUARIOS> listaUsuarios = _userService.ObtenerTodos().ToList();
+            List<USUARIOS> listaUsuarios = (await _userService.ObtenerTodos()).ToList();
 
             // Retornamos el JSON. (En MVC 5, JsonRequestBehavior.AllowGet es obligatorio para peticiones GET)
             return Json(new { data = listaUsuarios }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-        public JsonResult GuardarUsuario(USUARIOS usuario)
+        public async Task <JsonResult> GuardarUsuario(USUARIOS usuario)
         {
-            // 1. Inicializamos las variables de respuesta
+            //Inicializamos las variables de respuesta
             object resultado=null;
             string mensajeRespuesta = string.Empty;
+
+            // Leemos el Web.config aquí en la capa de Presentación
+            string correoSoporte = ConfigurationManager.AppSettings["CorreoSoporte"];
+            string claveSoporte = ConfigurationManager.AppSettings["ClaveCorreoSoporte"];
 
             try
             {
@@ -58,7 +68,7 @@ namespace MODULO_ADMIN.Controllers
                 if (usuario.ID_USUARIO == 0)
                 {
 
-                    resultado = _userService.Insertar(usuario);
+                    resultado = await _userService.Insertar(usuario,correoSoporte,claveSoporte);
                     mensajeRespuesta = "Usuario creado correctamente.";
                 }
                 else
@@ -125,7 +135,84 @@ namespace MODULO_ADMIN.Controllers
 
 
 
+        [HttpGet]
+        public async Task<JsonResult> ObtenerResumenDashboard()
+        {
+            // Hacemos las 4 consultas en una sola petición HTTP.
+            // Esto hace que la pantalla principal de tu sistema cargue casi instantáneamente.
+            var dashboardData = new
+            {
+                totalUsuarios = await _userService.ObtenerTotalUsuarios(),
+                ventasDia = await _ventaService.ObtenerSumaVentasDelDia(),
+                totalProductos = await _productoService.ObtenerTotalProductos(),
+                stockCritico = await _productoService.ObtenerProductosConStockCritico(5)
+            };
 
+            return Json(dashboardData, JsonRequestBehavior.AllowGet);
+        }
+
+
+
+        [HttpGet]
+        public async Task<JsonResult> ListarHistorialVentas(string fechaInicio, string fechaFin, string idTransaccion)
+        {
+            // Llamas a tu capa de negocio/repositorio pasando los filtros
+            var lista = await _ventaService.ObtenerHistorialVentasAsync(fechaInicio, fechaFin, idTransaccion);
+
+            // Retornamos un JSON con la propiedad "data", que es lo que DataTables usa por defecto
+            return Json(new { data = lista }, JsonRequestBehavior.AllowGet);
+        }
+
+
+
+        [HttpPost]
+
+        public async Task<FileResult> ExportarVenta (string fechaInicio, string fechaFin, string IdTransaccion)
+        {
+            List<HistorialVentasDTO> oLista = new List<HistorialVentasDTO>();
+            var lista = await _ventaService.ObtenerHistorialVentasAsync(fechaInicio, fechaFin, IdTransaccion);
+            DataTable dt = new DataTable();
+            dt.Locale = new System.Globalization.CultureInfo("es-EC");
+            dt.Columns.Add("Fecha venta", typeof(string));
+            dt.Columns.Add("Cliente", typeof(string));
+            dt.Columns.Add("Producto", typeof(string));
+            dt.Columns.Add("Precio", typeof(decimal));
+            dt.Columns.Add("Cantidad", typeof(int));
+            dt.Columns.Add("Total", typeof(decimal));
+            dt.Columns.Add("IdTransaccion", typeof(string));
+
+            foreach(HistorialVentasDTO rp in lista)
+            {
+                dt.Rows.Add(new object[]
+                {
+                    rp.FechaVenta,
+                    rp.Cliente,
+                    rp.Producto,
+                    rp.Precio,
+                    rp.Cantidad,
+                    rp.Total,
+                    rp.IdTransaccion
+                });
+            }
+
+            dt.TableName = "Datos";
+
+            using (XLWorkbook wb= new XLWorkbook())
+            {
+                wb.Worksheets.Add(dt);
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    // Formateamos la fecha para evitar caracteres inválidos en el nombre
+                    string nombreArchivo = "ReporteVenta_" + DateTime.Now.ToString("ddMMyyyy_HHmmss") + ".xlsx";
+                    wb.SaveAs(stream);
+                    return File(stream.ToArray(),
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        nombreArchivo);
+                }
+            }
+
+
+        }
 
     }
 }

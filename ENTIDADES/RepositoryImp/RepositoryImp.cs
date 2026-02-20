@@ -11,7 +11,7 @@ namespace ENTIDADES.RepositoryImp
 {
     public class RepositoryImp<T> : ICrudRepository<T> where T : class
     {
-        private ModelContext _context = null;
+        protected ModelContext _context = null;
         private DbSet<T> table = null;
 
         // Constructor
@@ -21,9 +21,9 @@ namespace ENTIDADES.RepositoryImp
             table = _context.Set<T>(); // Convierte la T en la tabla correspondiente
         }
 
-        public IEnumerable<T> ObtenerTodos()
+        public async Task<IEnumerable<T>> ObtenerTodos()
         {
-            return table.ToList();
+            return await table.ToListAsync();
         }
 
         public T ObtenerPorId(object id)

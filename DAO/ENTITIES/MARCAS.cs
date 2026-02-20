@@ -12,6 +12,8 @@ namespace ENTIDADES
         public MARCAS()
         {
             PRODUCTOS = new HashSet<PRODUCTOS>();
+            FECHA_CREACION = DateTime.Now;
+            ACTIVO = true;
         }
 
         [Key]
