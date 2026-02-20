@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DAL.Servicios
 {
-   public  class UtilService
+    public class UtilService
     {
         public static string GenerarClaveUnica()
         {
@@ -22,10 +22,10 @@ namespace DAL.Servicios
         public static string EncriptarClave(string texto)
         {
             StringBuilder sb = new StringBuilder();
-             using(SHA256 hash = SHA256Managed.Create())
+            using (SHA256 hash = SHA256Managed.Create())
             {
                 Encoding enc = Encoding.UTF8;
-                byte [] result = hash.ComputeHash(enc.GetBytes(texto));
+                byte[] result = hash.ComputeHash(enc.GetBytes(texto));
 
                 foreach (byte b in result)
                 {
@@ -37,43 +37,40 @@ namespace DAL.Servicios
 
         }
 
-        public static bool EnviarCorreo(string correo, string asunto, string mensaje)
+        // Agregamos "async Task<bool>"
+        public static async Task<bool> EnviarCorreo(string correo, string asunto, string mensaje,string correoEmisor, string claveEmisor)
         {
             bool resultado = false;
-
             try
             {
                 MailMessage mail = new MailMessage();
                 mail.To.Add(correo);
-                mail.From = new MailAddress("stinjob2024@gmail.com");
+                mail.From = new MailAddress(correoEmisor);
                 mail.Subject = asunto;
                 mail.Body = mensaje;
                 mail.IsBodyHtml = true;
 
                 var smtp = new SmtpClient()
                 {
-                    Credentials = new NetworkCredential("stinjob2024@gmail.com", "hvzrfibufokqqffo"),
+                    Credentials = new NetworkCredential(correoEmisor, claveEmisor),
                     Host = "smtp.gmail.com",
                     Port = 587,
-                    EnableSsl= true
-
+                    EnableSsl = true
                 };
-                smtp.Send(mail);
-                resultado = true;
 
+                // AQUÍ ESTÁ LA MAGIA: Usamos await y SendMailAsync
+                await smtp.SendMailAsync(mail);
+                resultado = true;
             }
             catch (Exception e)
             {
                 resultado = false;
                 Console.WriteLine(e.Message);
-               
             }
 
             return resultado;
         }
-        
-
-        }
 
     }
+}
 

@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+	<appSettings>
+		<add key="CorreoSoporte" value="correo_de_prueba@dominio.com" />
+		<add key="ClaveCorreoSoporte" value="ingresa_tu_clave_aqui" />
+	</appSettings>
+

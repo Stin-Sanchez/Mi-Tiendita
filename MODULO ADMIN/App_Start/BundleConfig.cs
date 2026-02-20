@@ -16,7 +16,8 @@ namespace MODULO_ADMIN
                        "~/Scripts/DataTables/jquery.dataTables.js",
                          "~/Scripts/DataTables/dataTables.responsive.js",
                          "~/Scripts/loadingoverlay/loadingoverlay.min.js",
-                         "~/Scripts/sweetalert.min.js",
+                         "~/Scripts/sweetalert.min.js", 
+                         "~/Scripts/jquery-ui-1.14.1.min.js",
                       "~/Scripts/scripts.js")); 
             
         
@@ -38,6 +39,7 @@ namespace MODULO_ADMIN
                 "~/Content/site.css", 
                 "~/Content/DataTables/css/jquery.dataTables.css",
                 "~/Content/DataTables/css/responsive.dataTables.css",
+                "~/Content/themes/base/jquery-ui.css",
                 "~/Content/sweetalert.css"
 
           

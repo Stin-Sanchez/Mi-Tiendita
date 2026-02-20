@@ -4,5 +4,518 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Producto</h2>
+<ol class="breadcrumb mb-4 mt-4">
+    <li class="breadcrumb-item"><a href="index.html">Mantenimiento</a></li>
+    <li class="breadcrumb-item active">Productos</li>
+</ol>
+
+<div class="card">
+    <div class="card-header">
+        <i class="fas  fa-boxes me-1"></i> Lista de Productos
+    </div>
+    <div class="card-body">
+
+        <div class="row">
+
+            <div class="col-12 mb-3">
+
+                <button type="button" class="btn btn-success " onclick="abrirModal(null)">Nuevo producto </button>
+
+            </div>
+            <hr class="mb-4" />
+
+
+            <table id="table_productos" class="display cell-border" style="width:100%">
+
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripcion</th>
+                        <th>Marca</th>
+                        <th>Categoria</th>
+                        <th>Precio</th>
+                        <th>Stock</th> 
+                        <th>Foto</th>
+                        <th>Activo</th>
+                        <th>Acciones</th>
+                    </tr>
+
+
+                </thead>
+                <tbody>
+                </tbody>
+
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="FormModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Registrar producto</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body ">
+
+                <input id="txtId" type="hidden" value="0" />
+
+                <div class="row g-2">
+
+                    <div class="col-sm-12">
+                        <label for="txtNombres" class="form-label"> Nombre del producto</label>
+                        <input type="text" class="form-control" id="txtNombres">
+                    </div>
+
+
+
+                    <div class="mb-3">
+                        <label for="txtDescripcion" class="form-label">Descripcion</label>
+                        <textarea class="form-control" id="txtDescripcion" rows="3"></textarea>
+                    </div>
+
+
+                    <div class="col-sm-6">
+                        <label for="cmbMarca" class="form-label">Marca</label>
+                        <select id="cmbMarca" class="form-select">
+                          
+                          
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label for="cmbCategoria" class="form-label">Categoria</label>
+                        <select id="cmbCategoria" class="form-select">
+                          
+                        </select>
+
+                    </div>
+
+
+                    <div class="col-sm-6">
+                        <label for="txtPrecio" class="form-label">Precio</label>
+                        <input type="text" class="form-control" id="txtPrecio" placeholder="ejemplo 10.00">
+                    </div>
+
+                    <div class=" col-sm-6">
+                        <label for="txtStock" class="form-label">Stock</label>
+                        <input type="text" class="form-control" id="txtStock">
+
+                    </div>
+
+                  
+                    <div class="col-sm-12">
+                        <label for="cmbActivo" class="form-label">Activo</label>
+                        <select id="cmbActivo" class="form-select">
+                            <option selected>Seleccione</option>
+                            <option value="1">Si</option>
+                            <option value="0">No</option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="mb-3 col-sm-12">
+                        <label for="imagen" class="form-label">Imagen de producto</label>
+                        <input class="form-control" type="file" id="imagen" accept="image/*">
+
+                        <div class="mt-2 text-center">
+                            <img id="imgPrevisualizacion" src="" alt="Previsualización" class="img-thumbnail" style="max-height: 150px; display: none;">
+                        </div>
+                    </div>
+
+
+
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-12">
+
+                        <div id="mensajeError" class="alert alert-danger" role="alert">
+                            A simple danger alert—check it out!
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarProducto()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts{
+
+
+    <script>
+
+        var tablaProductos;
+        var filaSeleccionada;
+
+
+        // Solicito al servidor los catálogos de Marcas y Categorías tan pronto como el navegador renderiza la página.
+        // Tomo esta decisión técnica de cargarlos de antemano (y no cuando se abre el modal) para que la experiencia
+        // del usuario sea instantánea y no vea un ligero retraso al darle clic a "Nuevo Producto".
+        $(document).ready(function () {
+
+            // --- CARGAR MARCAS ---
+            jQuery.ajax({
+                url: '@Url.Action("ObtenerMarcas", "Mantenedor")',
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    // Limpio el combobox por seguridad. Si por algún motivo este código se ejecuta dos veces,
+                    // no quiero que la lista de marcas se duplique visualmente.
+                    $("#cmbMarca").empty();
+
+                    // Inserto la opción por defecto que obliga al usuario a elegir algo válido.
+                    $("<option>").attr({ "value": "0", "disabled": true, "selected": true }).text("Seleccione una marca").appendTo("#cmbMarca");
+
+                    // Itero sobre el arreglo JSON que me devolvió mi servicio de C#.
+                    // Por cada marca real, creo un elemento <option> donde su 'value' interno es el ID numérico,
+                    // pero el texto que ve el usuario es el nombre de la marca.
+                    $.each(data.data, function (index, item) {
+                        $("<option>").attr({ "value": item.ID_MARCA }).text(item.NOMBRE).appendTo("#cmbMarca");
+                    });
+                }
+            });
+
+            // --- CARGAR CATEGORIAS ---
+         
+            jQuery.ajax({
+                url: '@Url.Action("ObtenerCategorias", "Mantenedor")',
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    $("#cmbCategoria").empty();
+                    $("<option>").attr({ "value": "0", "disabled": true, "selected": true }).text("Seleccione una categoría").appendTo("#cmbCategoria");
+
+                    $.each(data.data, function (index, item) {
+                        // Aquí el secreto para que el guardado funcione: el value que viaja al servidor es el ID.
+                        $("<option>").attr({ "value": item.ID_CATEGORIA }).text(item.NOMBRE).appendTo("#cmbCategoria");
+                    });
+                }
+            });
+        });
+
+        tablaProductos = $("#table_productos").DataTable({
+                responsive: true,
+                ordering: false,
+                "ajax": {
+                    url: '@Url.Action("ObtenerProductos", "Mantenedor")',
+                    type: "GET",
+                    dataType: "json"
+                },
+                "columns": [
+
+                    { "data": "NOMBRE" },
+                    { "data": "DESCRIPCION" },
+                    { "data": "MarcaDescripcion" },
+                    { "data": "CategoriaDescripcion" },
+                    { "data": "PRECIO" },
+                    { "data": "STOCK" },
+
+                    {
+                        "data": "NOMBRE_IMAGEN",
+                        "render": function (data, type, row) {
+                            // Valido si el producto realmente tiene un nombre de imagen guardado
+                            if (data != null && data.trim() !== "") {
+
+                                // Construyo la ruta real apuntando a nuestra carpeta de servidor.
+                                // Ojo equipo: Evito usar la RUTA_IMAGEN directa porque a veces contiene 
+                                // el símbolo "~" de ASP.NET, el cual los navegadores web no entienden.
+                                var urlImagen = "/Imagenes/Productos/" + data;
+
+                                // Retorno la etiqueta HTML de la imagen. 
+                                // Le aplico un alto y ancho fijo de 40px, y uso 'object-fit: cover' 
+                                // para que la imagen no se deforme aunque sea rectangular.
+                                return '<img src="' + urlImagen + '" alt="Producto" style="height: 40px; width: 40px; object-fit: cover; border-radius: 4px;" />';
+                            } else {
+                                // Si el producto no tiene foto, muestro un texto tenue y limpio
+                                return '<span class="text-muted"><i class="fas fa-image"></i> Sin foto</span>';
+                            }
+                        },
+                        // Apago el ordenamiento y la búsqueda en esta columna porque no tiene sentido buscar por una foto
+                        "orderable": false,
+                        "searchable": false
+                    },
+
+                   
+
+
+                    {
+                        "data": "ACTIVO", "render": function (valor) {
+                            if (valor) {
+                                return '<span class="badge text-bg-success">SHI</span>'
+
+                            } else {
+                                return '<span class="badge text-bg-danger">ÑO</span>'
+                            }
+
+
+
+                        }
+
+                    },
+                    {
+                        "defaultContent": ' <button type="button" class="btn btn-primary btn-sm btn-editar"> <i class="fas fa-pen "></i> </button>' +
+                            ' <button type="button" class="btn btn-danger btn-sm ms-2 btn-eliminar"> <i class="fas fa-trash "></i> </button>',
+                        "orderable": false,
+                        "searchable": false,
+                        "width": "70px"
+
+                    }
+                ],
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/2.3.7/i18n/es-ES.json"
+                }
+
+
+
+            });
+
+        function abrirModal(json) {
+            // Limpio proactivamente todos los campos del formulario.
+            // Hago esto para garantizar que no queden "datos fantasma" en la pantalla. 
+            // Si el usuario edita un producto, cierra el modal, y luego le da a "Nuevo Producto", 
+            // el formulario debe estar prístino.
+            $("#txtId").val(0);
+            $("#txtNombres").val("");
+            $("#txtDescripcion").val("");
+            $("#txtPrecio").val("");
+            $("#txtStock").val("");
+           
+            $("#cmbActivo").val(1);
+
+            // Por defecto, me aseguro de que los combobox estén habilitados para cuando sea un "Nuevo Producto".
+            $("#cmbMarca").prop("disabled", false);
+            $("#cmbCategoria").prop("disabled", false);
+
+            $("#mensajeError").hide();
+
+            // Limpio el input de tipo archivo y oculto el contenedor de previsualización de la foto.
+            $("#imagen").val("");
+            $("#imgPrevisualizacion").hide().attr('src', '');
+
+            // Si el json no es nulo, significa que el usuario hizo clic en el botón "Editar" de un registro existente.
+            if (json != null) {
+                // ¡Corrección de Bug!: En tu código original aquí tenías "json.ID_CATEGORIA". 
+                // Lo cambié a ID_PRODUCTO para que al guardar, el backend sepa a qué producto hacerle el UPDATE.
+                $("#txtId").val(json.ID_PRODUCTO);
+
+                $("#txtNombres").val(json.NOMBRE);
+                $("#txtDescripcion").val(json.DESCRIPCION);
+                $("#txtPrecio").val(json.PRECIO);
+                $("#txtStock").val(json.STOCK);
+             
+                $("#cmbActivo").val(json.ACTIVO == true ? 1 : 0);
+
+                // ¡AQUÍ ESTÁ EL SECRETO DE LOS COMBOBOXES!
+                // Asigno directamente el ID numérico de la base de datos al valor (val) del combobox. 
+                // jQuery es inteligente y buscará automáticamente el <option> que tenga ese ID y lo marcará como seleccionado.
+                // ¡Corrección de Bug!: En tu código anterior le pasabas el texto (json.CATEGORIAS.NOMBRE), lo cual no servía.
+                $("#cmbCategoria").val(json.ID_CATEGORIA).prop("disabled", true);
+                $("#cmbMarca").val(json.ID_MARCA).prop("disabled", true);
+
+                // Evalúo si el producto ya tiene una imagen guardada en la base de datos.
+                if (json.NOMBRE_IMAGEN != null && json.NOMBRE_IMAGEN.trim() !== "") {
+                    // Si la tiene, construyo la ruta hacia nuestra carpeta lógica del servidor 
+                    // y fuerzo a la etiqueta <img> a mostrarla.
+                    var rutaBase = "/Imagenes/Productos/";
+                    $("#imgPrevisualizacion").attr('src', rutaBase + json.NOMBRE_IMAGEN).show();
+                }
+            }
+
+            // Finalmente, despliego el modal en pantalla.
+            $("#FormModal").modal("show");
+        }
+
+        $("#table_productos tbody").on("click", '.btn-editar', function () {
+
+             filaSeleccionada = $(this).closest("tr");
+
+            var data = tablaProductos.row(filaSeleccionada).data();
+
+            abrirModal(data)
+
+
+        })
+
+        $("#table_productos tbody").on("click", '.btn-eliminar', function () {
+
+            var productoSeleccionado = $(this).closest("tr");
+
+            var data = tablaProductos.row(productoSeleccionado).data();
+
+            swal({
+                title: "Esta seguro?",
+                text: "Desea eliminar este producto? esta accion es ireversible",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-danger",
+                confirmButtonText: "Si",
+                cancelButtonText: "No",
+                closeOnConfirm: false,
+                closeOnCancel: false
+            },
+                function (isConfirm) {
+
+                    jQuery.ajax({
+                        url: '@Url.Action("EliminarProducto", "Mantenedor")',
+                        type: "POST",
+                        data: JSON.stringify({ id: data.ID_PRODUCTO }),
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+
+                            debugger;
+
+                            if (data.resultado) {
+                                if (isConfirm) {
+                                    tablaProductos.row(productoSeleccionado).remove().draw();
+                                    swal("Producto eliminado!", "El producto seleccionado fue eliminado con exito", "success");
+                                }
+                                else {
+                                    swal("Cancelled", "Your imaginary file is safe :)", "error");
+                                }
+                            } else {
+                                swal("Nose pudo eliminar", data.mensaje, "error");
+                            }
+                        },
+                        error: function (error) {
+                            console.log(error)
+                        },
+
+                    });
+
+                });
+
+            console.log(data);
+
+
+        })
+
+
+        function guardarProducto() {
+
+            // Creo el objeto FormData.
+            var formData = new FormData();
+
+            // Extraigo los valores numéricos asegurándome de que jamás sean texto vacío o "null".
+            var idMarcaSeleccionada = parseInt($("#cmbMarca").val()) || 0;
+            var idCategoriaSeleccionada = parseInt($("#cmbCategoria").val()) || 0;
+
+            // Agrego los datos usando EXACTAMENTE los nombres de las propiedades de tu entidad C#.
+            formData.append("ID_PRODUCTO", parseInt($("#txtId").val()) || 0);
+            formData.append("NOMBRE", $("#txtNombres").val());
+            formData.append("DESCRIPCION", $("#txtDescripcion").val());
+            formData.append("ID_MARCA", idMarcaSeleccionada);
+            formData.append("ID_CATEGORIA", idCategoriaSeleccionada);
+            formData.append("PRECIO", $("#txtPrecio").val().replace(',', '.')); // Reemplazo coma por punto por si acaso
+            formData.append("STOCK", parseInt($("#txtStock").val()) || 0);
+            formData.append("ACTIVO", $("#cmbActivo").val() == "1" ? true : false);
+
+            // Capturo el archivo de la imagen.
+            var inputImagen = $("#imagen")[0];
+            if (inputImagen.files.length > 0) {
+                formData.append("archivoImagen", inputImagen.files[0]);
+            }
+
+            jQuery.ajax({
+                url: '@Url.Action("GuardarProducto", "Mantenedor")',
+                type: "POST",
+                data: formData,
+
+                // Apago processData y contentType. Tomo esta decisión técnica porque si los dejo en true (su valor por defecto),
+                // jQuery intentará convertir mi FormData en un simple texto de consulta (QueryString), rompiendo el archivo.
+                // Al ponerlos en false, dejo que el navegador configure las cabeceras multipart automáticamente.
+                processData: false,
+                contentType: false,
+
+                success: function (data) {
+                    $(".modal-body").LoadingOverlay("hide");
+
+                    // Evalúo la bandera 'exito' que definimos en el controlador C#.
+                    if (data.exito) {
+                        $("#FormModal").modal("hide");
+
+                        // En lugar de inyectar la fila manualmente y complicarnos con las rutas de las imágenes,
+                        // le pido a DataTables que vuelva a consultar el servidor. Es la forma más segura de tener datos frescos.
+                        tablaProductos.ajax.reload();
+
+                        // Leo el valor del campo ID en el momento exacto en que la petición termina.
+                        // Si es 0, sé con total seguridad que fue una inserción. Si es mayor a 0, fue una actualización.
+                        var idProducto = parseInt($("#txtId").val()) || 0;
+                        var tituloAlerta = "";
+
+                        if (idProducto === 0) {
+                            tituloAlerta = "¡Producto Creado!";
+                        } else {
+                            tituloAlerta = "¡Producto Actualizado!";
+                        }
+
+                        // Lanzo el SweetAlert usando mi título dinámico y el mensaje exacto que me mandó C#.
+                        swal(tituloAlerta, data.mensaje, "success");
+
+
+                    } else {
+                        $("#mensajeError").text(data.mensaje);
+                        $("#mensajeError").show();
+                    }
+                },
+                error: function (error) {
+                    $(".modal-body").LoadingOverlay("hide");
+                    console.log("Error en la petición AJAX:", error);
+                    swal("Ocurrió un error", error, "error");
+                },
+                beforeSend: function () {
+                    $(".modal-body").LoadingOverlay("show", {
+                        imageResizeFactor: 2,
+                        text: "Cargando..",
+                        size: 14
+                    });
+                }
+            });
+        }
+
+        // Evento para previsualizar la imagen seleccionada
+        $("#imagen").change(function () {
+            var input = this;
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $("#imgPrevisualizacion").attr('src', e.target.result).show();
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                // Si el usuario cancela la selección, escondemos la imagen
+                $("#imgPrevisualizacion").hide().attr('src', '');
+            }
+        });
+
+
+
+    </script>
+    }
 

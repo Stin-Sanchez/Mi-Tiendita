@@ -55,17 +55,25 @@
   <ItemGroup>
     <Compile Include="ModelContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RepositoryImp\ClienteRepositoryImp.cs" />
+    <Compile Include="RepositoryImp\ProductoRepositoryImp.cs" />
     <Compile Include="RepositoryImp\RepositoryImp.cs" />
+    <Compile Include="RepositoryImp\VentaRepositoryImp.cs" />
+    <Compile Include="Repository\IClienteRepository.cs" />
     <Compile Include="Repository\ICrudRepository.cs" />
+    <Compile Include="Repository\IProductoRepository.cs" />
+    <Compile Include="Repository\IUsuarioRepository.cs" />
+    <Compile Include="RepositoryImp\UsuarioRepositoryImp.cs" />
+    <Compile Include="Repository\IventaRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DAO\ENTITIES.csproj">
+    <ProjectReference Include="..\DAO\MODELO.csproj">
       <Project>{ee3af549-3526-4014-a8bb-a8c104292601}</Project>
-      <Name>ENTITIES</Name>
+      <Name>MODELO</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

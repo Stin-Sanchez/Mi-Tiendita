@@ -1,31 +1,287 @@
 ﻿@{
-    ViewBag.Title = "Home Page";
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-<div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
-</div>
+<h1 class="mt-4">Dashboard</h1>
+<ol class="breadcrumb mb-4 bg-transparent p-0">
+    <li class="breadcrumb-item active text-muted">Resumen General</li>
+</ol>
 
 <div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
-        </p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
+
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex justify-content-between align-items-center p-4">
+
+                <div>
+                    <h6 class="text-muted mb-1" style="font-size: 0.9rem;">Total de Usuarios</h6>
+                    <h2 id="lblTotalUsuarios" class="fw-bold text-dark mb-0">Cargando...</h2>
+                </div>
+
+                <div class="text-primary" style="opacity: 0.3;">
+                    <i class="fas fa-users fa-3x"></i>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex justify-content-between align-items-center p-4">
+                <div>
+                    <h6 class="text-muted mb-1" style="font-size: 0.9rem;">Ventas del Día</h6>
+                    <h2 id="lblVentasDelDia" class="fw-bold text-dark mb-0">Cargando...</h2>
+                </div>
+                <div class="text-success" style="opacity: 0.3;">
+                    <i class="fas fa-dollar-sign fa-3x"></i>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex justify-content-between align-items-center p-4">
+                <div>
+                    <h6 class="text-muted mb-1" style="font-size: 0.9rem;">Total de Productos</h6>
+                    <h2 id="lblTotalProductos" class="fw-bold text-dark mb-0">Cargando...</h2>
+                </div>
+
+                <div class="text-info" style="opacity: 0.3;">
+                    <i class="fas fa-box-open fa-3x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-0 shadow-sm h-100 border-bottom border-danger border-3">
+            <div class="card-body d-flex justify-content-between align-items-center p-4">
+                <div>
+                    <h6 class="text-muted mb-1" style="font-size: 0.9rem;">Stock Crítico</h6>
+                    <h2 id="lblStockCritico" class="fw-bold text-danger mb-0">Cargando...</h2>
+                </div>
+                <div class="text-danger" style="opacity: 0.3;">
+                    <i class="fas fa-exclamation-triangle fa-3x"></i>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+
+<div class="card mb-4">
+    <div class="card-header">
+        <i class=" fas fa-tags me-1"></i>
+        Historial de ventas
+
+    </div>
+
+    <div class="card-body">
+
+        <form action="@Url.Action("ExportarVenta","Home")" method="post">
+
+            <div class="row align-items-end">
+                <div class="col-sm-2">
+                    <div class=" mb-2">
+                        <label class="form-label">Fecha de inicio:</label>
+                        <input class="form-control" type="date" id="txtFechaInicio" name="fechaInicio" />
+                    </div>
+                </div>
+
+                <div class="col-sm-2">
+                    <div class=" mb-2">
+                        <label class="form-label">Fecha fin:</label>
+                        <input class="form-control" type="date" id="txtFechaFin" name="fechaFin" />
+                    </div>
+                </div>
+
+                <div class="col-sm-4">
+                    <div class="mb-2">
+                        <label class="form-label">ID de transaccion:</label>
+                        <input class="form-control" type="text" id="txtIdTransaccion" name="IdTransaccion" />
+                    </div>
+                </div>
+
+                <div class="col-sm-2">
+                    <div class="d-grid mb-2">
+                        <button class="btn btn-primary" id="btnBuscar" type="button"><i class="fas fa-search"></i>Buscar</button>
+                    </div>
+                </div>
+
+                <div class="col-sm-2">
+                    <div class="d-grid mb-2">
+                        <button class="btn btn-success" id="btnExportarExcel" type="submit"><i class="fas fa-file-excel"></i>Exportar</button>
+                    </div>
+                </div>
+
+            </div>
+
+
+
+            <hr />
+
+            <div class="row">
+
+                <div class="col-sm-12">
+
+                    <table id="tabla" class="display cell-border" style="width:100%">
+                        <thead>
+
+                            <tr>
+
+                                <th>Fecha de venta</th>
+                                <th>Cliente</th>
+                                <th>Preducto</th>
+                                <th>Precio</th>
+                                <th>Cantidad</th>
+                                <th>Total</th>
+                                <th>ID de transaccion</th>
+
+                            </tr>
+
+                        </thead>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </form>
+
+
+
+
+
+    </div>
+
+</div>
+
+
+@section scripts {
+    <script>
+
+        $(document).ready(function () {
+    // Hacemos UNA SOLA petición al cargar el Dashboard
+    $.ajax({
+        url: '@Url.Action("ObtenerResumenDashboard", "Home")', // Apuntamos al nuevo método unificado
+        type: "GET",
+        dataType: "json",
+        success: function (response) {
+
+            // 1. Total de Usuarios
+            // Accedemos a response.totalUsuarios porque así lo llamamos en el objeto anónimo de C#
+            $("#lblTotalUsuarios").text(response.totalUsuarios);
+
+            // 2. Ventas del Día
+            // Formateamos el número a moneda (Dólares)
+            let formatoMoneda = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(response.ventasDia);
+            $("#lblVentasDelDia").text(formatoMoneda);
+
+            // 3. Total de Productos
+            $("#lblTotalProductos").text(response.totalProductos);
+
+            // 4. Stock Crítico
+            $("#lblStockCritico").text(response.stockCritico);
+
+        },
+        error: function (error) {
+            console.log("Error al cargar el resumen del dashboard:", error);
+
+            // Si algo falla, ponemos todo en estado "N/A" o "0" para no dejar la pantalla rota
+            $("#lblTotalUsuarios").text("N/A");
+            $("#lblVentasDelDia").text("$0.00");
+            $("#lblTotalProductos").text("N/A");
+            $("#lblStockCritico").text("N/A");
+        }
+    });
+
+
+         
+            // SETEAR FECHAS POR DEFECTO (Día de hoy)
+           
+            // 1. Obtenemos la fecha actual
+            var hoy = new Date();
+
+            // 2. Extraemos el día, mes y año asegurando que tengan 2 dígitos (ej. "05" en vez de "5")
+            var dia = ("0" + hoy.getDate()).slice(-2);
+            var mes = ("0" + (hoy.getMonth() + 1)).slice(-2); // En JS los meses empiezan en 0, por eso el +1
+            var anio = hoy.getFullYear();
+
+            // 3. Armamos la cadena en el formato estricto YYYY-MM-DD
+            var fechaHoyStr = anio + "-" + mes + "-" + dia;
+
+            // 4. Asignamos el valor a los inputs usando sus IDs
+            $("#txtFechaInicio").val(fechaHoyStr);
+            $("#txtFechaFin").val(fechaHoyStr);
+
+
+           
+            // 5. CONFIGURACIÓN DE DATATABLES PARA HISTORIAL
+           
+
+            // Inicializamos el DataTable
+            var tablaHistorial = $('#tabla').DataTable({
+                responsive: true,
+                ordering: false, // Desactivamos el ordenamiento por defecto si lo manejas desde BD
+                "ajax": {
+                    url: '@Url.Action("ListarHistorialVentas", "Home")', // Asegúrate que el controlador sea "Home"
+                    type: "GET",
+                    dataType: "json",
+                    // Esta función 'data' intercepta la petición justo antes de enviarse
+                    // y adjunta los valores actuales de los inputs
+                    data: function (d) {
+                        d.fechaInicio = $("#txtFechaInicio").val();
+                        d.fechaFin = $("#txtFechaFin").val();
+                        d.idTransaccion = $("#txtIdTransaccion").val();
+                    }
+                },
+                "columns": [
+                    { "data": "FechaVenta" },
+                    { "data": "Cliente" },
+                    { "data": "Producto" },
+                    {
+                        "data": "Precio",
+                        "render": $.fn.dataTable.render.number(',', '.', 2, '$') // Formato de moneda automático
+                    },
+                    { "data": "Cantidad" },
+                    {
+                        "data": "Total",
+                        "render": $.fn.dataTable.render.number(',', '.', 2, '$') // Formato de moneda automático
+                    },
+                    { "data": "IdTransaccion" }
+                ],
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json" // Pone la tabla en español
+                }
+            });
+
+            // Acción del botón Buscar
+            $("#btnBuscar").on("click", function () {
+                var btn = $(this); // Guardamos la referencia al botón
+
+                // 1. Cambiamos el HTML interno: ponemos el spinner girando y el texto, y bloqueamos el botón
+                btn.html('<i class="fas fa-spinner fa-spin"></i> Buscando...');
+                btn.prop('disabled', true);
+
+                // 2. Ejecutamos la recarga de DataTables
+                // El método reload() acepta una función "callback" que se ejecuta EXACTAMENTE cuando el servidor responde
+                tablaHistorial.ajax.reload(function () {
+
+                    // 3. Restauramos el botón a su estado original cuando la búsqueda finaliza
+                    btn.html('<i class="fas fa-search"></i> Buscar');
+                    btn.prop('disabled', false);
+
+                });
+            });
+
+        });
+
+
+    </script>
+}

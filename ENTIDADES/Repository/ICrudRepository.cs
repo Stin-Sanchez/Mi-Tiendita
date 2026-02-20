@@ -9,7 +9,7 @@ namespace ENTIDADES.Repository
     public interface ICrudRepository <T> where T: class
 
     {
-        IEnumerable<T> ObtenerTodos();
+        Task<IEnumerable<T>> ObtenerTodos();
         T ObtenerPorId(object id);
         T Insertar(T obj);
         T Actualizar(T obj);
