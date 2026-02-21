@@ -22,7 +22,7 @@ namespace ENTIDADES.RepositoryImp
             try
             {
                 // 1. Buscamos el cliente por su ID
-                var cliente = _context.USUARIOS.Find(idCliente);
+                var cliente = _context.CLIENTES.Find(idCliente);
 
                 if (cliente != null)
                 {
@@ -53,7 +53,7 @@ namespace ENTIDADES.RepositoryImp
             try
             {
                 // 1. Buscamos el cliente por su ID
-                var cliente = _context.USUARIOS.Find(idCliente);
+                var cliente = _context.CLIENTES.Find(idCliente);
 
                 if (cliente != null)
                 {
@@ -69,12 +69,11 @@ namespace ENTIDADES.RepositoryImp
                     return filasAfectadas > 0;
                 }
 
-                return false;
+                throw new Exception($"No se encontró ningún registro en la BD con el ID: {idCliente}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
-                return false;
+                throw ex;
             }
         }
     }

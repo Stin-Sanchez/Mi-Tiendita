@@ -32,12 +32,12 @@ namespace DAL.Servicios
         /// <summary>
         /// Tomo un usuario existente con datos modificados y consolido los cambios en el sistema.
         /// </summary>
-        public USUARIOS Actualizar(USUARIOS usuario)
+        public async Task<USUARIOS> Actualizar(USUARIOS usuario)
         {
             // Por ahora, delego directamente la actualización al repositorio. 
             // Si en el futuro necesitamos validar que un usuario no cambie su correo a uno ya existente, 
             // este es el lugar exacto donde pondré esa regla de negocio antes de llamar al repositorio.
-            return _UsuarioRepo.Actualizar(usuario);
+            return await _UsuarioRepo.ActualizarAsync(usuario);
         }
 
         /// <summary>
@@ -66,10 +66,10 @@ namespace DAL.Servicios
         /// <summary>
         /// Realizo un "borrado lógico" (soft delete) del usuario para inhabilitar su acceso.
         /// </summary>
-        public void Eliminar(long id)
+        public async Task Eliminar(long id)
         {
             // Primero, consulto la base de datos para asegurarme de que el usuario que me piden eliminar realmente existe.
-            USUARIOS usuario = _UsuarioRepo.ObtenerPorId(id);
+            USUARIOS usuario = await _UsuarioRepo.ObtenerPorIdAsync(id);
 
             // Si no encuentro al usuario, detengo la ejecución lanzando una excepción inmediatamente.
             // Hago esto para que el bloque 'catch' del controlador atrape el error y le muestre 
@@ -84,7 +84,7 @@ namespace DAL.Servicios
             usuario.ACTIVO = false;
 
             // Finalmente, reutilizo mi método de actualización para guardar este cambio de estado.
-            _UsuarioRepo.Actualizar(usuario);
+            await _UsuarioRepo.ActualizarAsync(usuario);
         }
 
         /// <summary>
@@ -160,16 +160,16 @@ namespace DAL.Servicios
             usuario.CLAVE = UtilService.EncriptarClave(clave);
 
             // Finalmente, le paso el objeto validado y seguro al repositorio para que lo inserte en SQL.
-            return _UsuarioRepo.Insertar(usuario);
+            return await _UsuarioRepo.InsertarAsync(usuario);
         }
 
         /// <summary>
         /// Busco los datos completos de un usuario específico.
         /// </summary>
-        public USUARIOS ObtenerPorId(long id)
+        public async Task<USUARIOS> ObtenerPorId(long id)
         {
             // Delego la operación de lectura al repositorio.
-            return _UsuarioRepo.ObtenerPorId(id);
+            return await  _UsuarioRepo.ObtenerPorIdAsync(id);
         }
 
         /// <summary>
@@ -205,7 +205,7 @@ namespace DAL.Servicios
         {
             // Primero, valido que el usuario realmente exista en mi base de datos antes de intentar cualquier operación.
             // Necesito sus datos (Nombre, Apellido) para personalizar el correo, así que hago la consulta ahora.
-            var usuario = _UsuarioRepo.ObtenerPorId(idUsuario);
+            var usuario = await _UsuarioRepo.ObtenerPorIdAsync(idUsuario);
 
             if (usuario == null)
             {

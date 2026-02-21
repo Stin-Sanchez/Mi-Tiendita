@@ -1,0 +1,244 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recuperar Contraseña - [Tu Marca]</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        /* Variables de la Paleta - Azul extraído de tu imagen */
+        :root {
+            --primary-color: #0d6efd; /* Azul brillante exacto */
+            --primary-hover: #0b5ed7; /* Un tono ligeramente más oscuro para el hover */
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #111827;
+            --text-muted: #9ca3af;
+            --border-color: #dee2e6;
+            --focus-ring: rgba(13, 110, 253, 0.25); /* Sombra de foco con el mismo azul */
+        }
+
+        /* Reseteo y base */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        /* Tarjeta */
+        .recovery-card {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 440px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+        }
+
+        /* Encabezado */
+        .card-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .card-description {
+            font-size: 0.95rem;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        /* Estilos para Inputs con Iconos */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .input-icon-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.15rem;
+            transition: color 0.2s ease;
+            pointer-events: none;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.8rem;
+            font-size: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            outline: none;
+            color: var(--text-main);
+        }
+
+        .input-icon-wrapper:focus-within .form-control {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px var(--focus-ring);
+        }
+
+        .input-icon-wrapper:focus-within .input-icon {
+            color: var(--primary-color);
+        }
+
+        /* Acciones */
+        .form-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+
+        /* Botón Principal con Icono */
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            .btn-primary:hover {
+                background-color: var(--primary-hover);
+                transform: translateY(-1px);
+            }
+
+            .btn-primary:active {
+                transform: scale(0.98);
+            }
+
+        .btn-icon, .link-icon {
+            font-size: 1.1rem;
+        }
+
+        /* Enlace de retorno con Icono */
+        .link-return {
+            font-size: 0.9rem;
+            color: #6b7280;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+            .link-return:hover {
+                color: var(--primary-color);
+            }
+
+        /* --- AQUÍ ESTÁ LA CORRECCIÓN DE LA DOBLE ARROBA --- */
+        @@media (max-width: 480px) {
+            .recovery-card {
+                padding: 1.5rem;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+                gap: 1.25rem;
+            }
+
+            .btn-primary {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="recovery-card">
+        <header class="card-header">
+            <h1 class="card-title">Recuperar Contraseña</h1>
+            <p class="card-description">
+                Ingresa tu correo electrónico asociado a tu cuenta y te enviaremos las instrucciones.
+            </p>
+        </header>
+
+        <form method="post" action="@Url.Action("Restablecer","Acceso") ">
+            <div class="form-group">
+                <label for="inputEmail" class="form-label">Correo electrónico</label>
+                <div class="input-icon-wrapper">
+                    <i class="bi bi-envelope input-icon"></i>
+                    <input type="email"
+                           id="inputEmail"
+                           class="form-control"
+                           placeholder="ejemplo@correo.com"
+                           required
+                           autocomplete="email"
+                           name="correo" />
+
+                </div>
+            </div>
+
+
+            @{ if (ViewBag.Error != null)
+                {
+                    <div class="form-floating mb-3">
+                        <div class="alert alert-danger" role="alert">
+                            @ViewBag.Error
+                        </div>
+                    </div> } }
+
+
+
+            <div class="form-actions">
+                <a href="@Url.Action("Index","Acceso")" class="link-return">
+                    <i class="bi bi-arrow-left link-icon"></i>
+                    Volver al inicio
+                </a>
+                <button type="submit" class="btn-primary">
+                    Enviar enlace
+                    <i class="bi bi-send btn-icon"></i>
+                </button>
+            </div>
+        </form>
+    </main>
+
+</body>
+</html>

@@ -77,7 +77,7 @@ namespace MODULO_ADMIN.Controllers
         }
 
         [HttpPost]
-        public JsonResult GuardarMarca(MARCAS marca)
+        public async Task <JsonResult> GuardarMarca(MARCAS marca)
         {
             // 1. Inicializamos las variables de respuesta
             object resultado = null;
@@ -96,7 +96,7 @@ namespace MODULO_ADMIN.Controllers
                 {
                     // 1. Buscamos la marca tal como está en la base de datos
 
-                    var marcaOriginal = _marcaService.ObtenerPorId(marca.ID_MARCA);
+                    var marcaOriginal = await _marcaService.ObtenerPorId(marca.ID_MARCA);
 
                     if (marcaOriginal != null)
                     {
@@ -127,7 +127,7 @@ namespace MODULO_ADMIN.Controllers
         }
 
         [HttpPost]
-        public JsonResult EliminarMarca(long id)
+        public async Task<JsonResult> EliminarMarca(long id)
         {
             bool respuesta = false;
             string mensajeRespuesta = string.Empty;
@@ -135,7 +135,7 @@ namespace MODULO_ADMIN.Controllers
             try
             {
                 // Llamamos al metodo
-                _marcaService.Eliminar(id);
+                await _marcaService.Eliminar(id);
 
                 // Si la línea anterior no explota, significa que se eliminó/desactivó con éxito
                 respuesta = true;
@@ -187,7 +187,7 @@ namespace MODULO_ADMIN.Controllers
         }
 
         [HttpPost]
-        public JsonResult GuardarCategoria(CATEGORIAS categoria)
+        public async Task<JsonResult> GuardarCategoria(CATEGORIAS categoria)
         {
             // 1. Inicializamos las variables de respuesta
             object resultado = null;
@@ -199,14 +199,14 @@ namespace MODULO_ADMIN.Controllers
                 if (categoria.ID_CATEGORIA == 0)
                 {
 
-                    resultado = _categoriaService.Insertar(categoria);
+                    resultado = await _categoriaService.Insertar(categoria);
                     mensajeRespuesta = "Categoria creada correctamente.";
                 }
                 else
                 {
                     // 1. Buscamos la marca tal como está en la base de datos
 
-                    var categoriaOriginal = _categoriaService.ObtenerPorId(categoria.ID_CATEGORIA);
+                    var categoriaOriginal = await _categoriaService.ObtenerPorId(categoria.ID_CATEGORIA);
 
                     if (categoriaOriginal != null)
                     {
@@ -238,7 +238,7 @@ namespace MODULO_ADMIN.Controllers
 
 
         [HttpPost]
-        public JsonResult EliminarCategoria(long id)
+        public async Task<JsonResult> EliminarCategoria(long id)
         {
             bool respuesta = false;
             string mensajeRespuesta = string.Empty;
@@ -246,7 +246,7 @@ namespace MODULO_ADMIN.Controllers
             try
             {
                 // Llamamos al metodo
-                _categoriaService.Eliminar(id);
+                await _categoriaService.Eliminar(id);
 
                 // Si la línea anterior no explota, significa que se eliminó/desactivó con éxito
                 respuesta = true;
@@ -323,7 +323,7 @@ namespace MODULO_ADMIN.Controllers
         /// <param name="archivoImagen">El archivo físico que intercepto directamente desde la petición multipart del frontend.</param>
         /// <returns>Un JSON con el estado de la operación para que la vista muestre la alerta correspondiente.</returns>
         [HttpPost]
-        public JsonResult GuardarProducto(PRODUCTOS producto, HttpPostedFileBase archivoImagen)
+        public async Task<JsonResult> GuardarProducto(PRODUCTOS producto, HttpPostedFileBase archivoImagen)
         {
             // Variables nativas (simples), NINGÚN objeto de base de datos aquí.
             string mensajeRespuesta = string.Empty;
@@ -353,14 +353,14 @@ namespace MODULO_ADMIN.Controllers
                 if (producto.ID_PRODUCTO == 0)
                 {
                     // Insertar
-                    _productoService.Insertar(producto);
+                   await  _productoService.Insertar(producto);
                     operacionExitosa = true;
                     mensajeRespuesta = "Producto creado correctamente.";
                 }
                 else
                 {
                     // Actualizar
-                    var productoOriginal = _productoService.ObtenerPorId(producto.ID_PRODUCTO);
+                    var productoOriginal = await _productoService.ObtenerPorId(producto.ID_PRODUCTO);
 
                     if (productoOriginal != null)
                     {
@@ -378,7 +378,7 @@ namespace MODULO_ADMIN.Controllers
                             productoOriginal.NOMBRE_IMAGEN = producto.NOMBRE_IMAGEN;
                         }
 
-                        _productoService.Actualizar(productoOriginal);
+                        await  _productoService.Actualizar(productoOriginal);
                         operacionExitosa = true;
                         mensajeRespuesta = "Producto actualizado correctamente.";
 

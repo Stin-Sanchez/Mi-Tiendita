@@ -30,7 +30,7 @@ namespace DAL.Servicios
         /// Proceso la creación de un nuevo producto asegurándome de que sus asociaciones 
         /// (Marca y Categoría) se manejen correctamente a nivel de llaves foráneas.
         /// </summary>
-        public PRODUCTOS Insertar(PRODUCTOS producto)
+        public async Task<PRODUCTOS> Insertar(PRODUCTOS producto)
         {
             // Primero, detengo la ejecución si el objeto llega nulo para evitar caídas del sistema.
             if (producto == null)
@@ -70,13 +70,13 @@ namespace DAL.Servicios
             producto.ACTIVO = true;
 
             // Finalmente, delego la persistencia al repositorio.
-            return _repository.Insertar(producto);
+            return await _repository.InsertarAsync(producto);
         }
 
         /// <summary>
         /// Aplico las mismas reglas estrictas para la actualización de un producto existente.
         /// </summary>
-        public PRODUCTOS Actualizar(PRODUCTOS producto)
+        public async Task<PRODUCTOS> Actualizar(PRODUCTOS producto)
         {
             if (producto == null || producto.ID_PRODUCTO <= 0)
                 throw new ArgumentException("Datos de producto inválidos para actualizar.");
@@ -91,28 +91,28 @@ namespace DAL.Servicios
             producto.CATEGORIAS = null;
             producto.MARCAS = null;
 
-            return _repository.Actualizar(producto);
+            return await  _repository.ActualizarAsync(producto);
         }
 
         /// <summary>
         /// Doy de baja un producto del sistema.
         /// </summary>
-        public void Eliminar(long id)
+        public async Task Eliminar(long id)
         {
             if (id <= 0) throw new ArgumentException("ID de producto inválido.");
 
             // Ojo equipo: Al igual que con las categorías, si este producto ya está en el CARRITO de un cliente 
             // o en un DETALLE_VENTAS, el motor de SQL lanzará una excepción por llave foránea. 
             // En el futuro, podríamos cambiar esto por un borrado lógico (producto.ACTIVO = false).
-            _repository.Eliminar(id);
+            await _repository.EliminarAsync(id);
         }
 
         /// <summary>
         /// Busco el detalle de un producto en particular.
         /// </summary>
-        public PRODUCTOS ObtenerPorId(long id)
+        public async Task<PRODUCTOS> ObtenerPorId(long id)
         {
-            return _repository.ObtenerPorId(id);
+            return await _repository.ObtenerPorIdAsync(id);
         }
 
         /// <summary>

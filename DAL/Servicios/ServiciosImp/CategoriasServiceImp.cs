@@ -32,7 +32,7 @@ namespace DAL.Servicios
         /// Proceso la solicitud de creación de una nueva categoría, aplicando todas nuestras 
         /// reglas de negocio y validaciones de formato antes de permitir su persistencia.
         /// </summary>
-        public CATEGORIAS Insertar(CATEGORIAS categoria)
+        public async Task<CATEGORIAS> Insertar(CATEGORIAS categoria)
         {
             // Primero verifico si el objeto categoría llegó nulo desde el controlador. 
             // Si es así, detengo la ejecución lanzando una excepción para evitar un NullReferenceException profundo que tumbe el sistema.
@@ -58,13 +58,13 @@ namespace DAL.Servicios
             categoria.ACTIVO = true;
 
             // Una vez que los datos pasaron mis filtros de seguridad, le doy luz verde al repositorio para guardarlos.
-            return _repository.Insertar(categoria);
+            return await _repository.InsertarAsync(categoria);
         }
 
         /// <summary>
         /// Valido y proceso la actualización de una categoría que ya existe en el sistema.
         /// </summary>
-        public CATEGORIAS Actualizar(CATEGORIAS categoria)
+        public async Task<CATEGORIAS> Actualizar(CATEGORIAS categoria)
         {
             // Al igual que en la inserción, me aseguro de que me estén enviando un objeto real.
             if (categoria == null)
@@ -84,13 +84,13 @@ namespace DAL.Servicios
                 throw new ArgumentException("La descripción es obligatoria y no debe superar los 100 caracteres.");
 
             // Estando seguro de la integridad de la información, delego el UPDATE a la capa de datos.
-            return _repository.Actualizar(categoria);
+            return await _repository.ActualizarAsync(categoria);
         }
 
         /// <summary>
         /// Gestiono la eliminación de una categoría en base a su ID.
         /// </summary>
-        public void Eliminar(long id)
+        public async Task Eliminar(long id)
         {
             // Evito viajes innecesarios a la base de datos bloqueando IDs que lógicamente son inválidos.
             if (id <= 0)
@@ -98,7 +98,7 @@ namespace DAL.Servicios
 
             // Recupero la categoría actual para verificar si existe antes de mandar la orden de borrarla.
             // Hago esto para poder darle retroalimentación precisa al controlador en caso de que alguien ya la haya borrado segundos antes.
-            var categoriaExistente = _repository.ObtenerPorId(id);
+            var categoriaExistente = await _repository.ObtenerPorIdAsync(id);
             if (categoriaExistente == null)
                 throw new InvalidOperationException("La categoría que intentas eliminar no existe en el registro.");
 
@@ -106,19 +106,19 @@ namespace DAL.Servicios
             // (Ojo equipo: Si nuestra regla de negocio futura dicta que no se pueden borrar categorías con productos ligados, 
             // yo agregaría aquí un chequeo a 'categoriaExistente.PRODUCTOS.Any()' y lanzaría una excepción, o bien, 
             // cambiaría la lógica para hacer un borrado lógico poniendo ACTIVO = false).
-            _repository.Eliminar(id);
+            await _repository.EliminarAsync(id);
         }
 
         /// <summary>
         /// Recupero el detalle completo de una categoría específica.
         /// </summary>
-        public CATEGORIAS ObtenerPorId(long id)
+        public async Task<CATEGORIAS> ObtenerPorId(long id)
         {
             // Valido la entrada para no saturar al motor de SQL con búsquedas de IDs negativos o ceros.
             if (id <= 0)
                 throw new ArgumentException("El identificador proporcionado no es válido.");
 
-            return _repository.ObtenerPorId(id);
+            return await _repository.ObtenerPorIdAsync(id);
         }
 
         /// <summary>
