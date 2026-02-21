@@ -10,9 +10,12 @@ namespace DAL.Servicios
     public interface IMarcaService
     {
         Task<IEnumerable<MARCAS>> ObtenerTodasLasMarcas();
-        MARCAS ObtenerPorId(long id);
-        MARCAS Insertar(MARCAS marca);
-        MARCAS Actualizar(MARCAS marca);
-        void Eliminar(long id);
+        
+        Task<IEnumerable<MARCAS>> ObtenerMarcasPorCategoria(long idCategoria);
+
+        Task<MARCAS> ObtenerPorId(long id);
+        Task<MARCAS> Insertar(MARCAS marca);
+        Task<MARCAS> Actualizar(MARCAS marca);
+        Task Eliminar(long id);
     }
 }

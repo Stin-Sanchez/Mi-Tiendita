@@ -9,6 +9,7 @@ namespace MODULO_CLIENTE
         public static void RegisterBundles(BundleCollection bundles)
         {
             bundles.Add(new Bundle("~/bundles/jquery").Include(
+                       
                         "~/Scripts/jquery-{version}.js"));
 
             /*bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
@@ -20,9 +21,16 @@ namespace MODULO_CLIENTE
                         "~/Scripts/modernizr-*"));*/
 
             bundles.Add(new Bundle("~/bundles/bootstrap").Include(
-                      "~/Scripts/bootstrap.js"));
+                  "~/Scripts/sweetalert.min.js",
+                         "~/Scripts/fontawesome/all.min.js",
+                           "~/Scripts/loadingoverlay/loadingoverlay.min.js",
+                         
+                      "~/Scripts/bootstrap.bundle.js"));
 
-            bundles.Add(new ScriptBundle("~/Content/css").Include( "~/Content/site.css"));
+            bundles.Add(new ScriptBundle("~/Content/css").Include(
+                 
+                 "~/Content/sweetalert.css",
+                "~/Content/site.css"));
         }
     }
 }

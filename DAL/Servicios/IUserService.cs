@@ -10,10 +10,11 @@ namespace DAL.Servicios
     public interface IUserService
     {
         Task<IEnumerable<USUARIOS>> ObtenerTodos();
-        USUARIOS ObtenerPorId(long id);
+        Task<USUARIOS> ObtenerPorId(long id);
+      
         Task<USUARIOS> Insertar(USUARIOS usuario, string correoEmisor, string claveEmisor);
-        USUARIOS Actualizar(USUARIOS usuario);
-        void Eliminar(long id);
+        Task<USUARIOS> Actualizar(USUARIOS usuario);
+        Task Eliminar(long id);
 
         Task<int> ObtenerTotalUsuarios();
 

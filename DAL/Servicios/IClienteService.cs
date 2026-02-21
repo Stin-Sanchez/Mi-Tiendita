@@ -10,10 +10,10 @@ namespace DAL.Servicios
    public  interface IClienteService
     {
         Task<IEnumerable<CLIENTES>> ObtenerTodos();
-        CLIENTES ObtenerPorId(long id);
+        Task <CLIENTES> ObtenerPorId(long id);
         Task<CLIENTES> Insertar(CLIENTES usuario);
-        CLIENTES Actualizar(CLIENTES usuario);
-        void Eliminar(long id);
+        Task <CLIENTES> Actualizar(CLIENTES usuario);
+        Task Eliminar(long id);
 
         Task<int> ObtenerTotalUsuarios();
 

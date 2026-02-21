@@ -4,7 +4,7 @@ namespace ENTIDADES
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
-   
+
 
     public partial class CLIENTES
     {
@@ -13,6 +13,9 @@ namespace ENTIDADES
         {
             CARRITO = new HashSet<CARRITO>();
             VENTAS = new HashSet<VENTAS>();
+            FECHA_CREACION = DateTime.Now;
+            RESTABLECER = true;
+            ACTIVO = true;
         }
 
         [Key]
@@ -33,6 +36,11 @@ namespace ENTIDADES
         [Required]
         [StringLength(150)]
         public string CLAVE { get; set; }
+
+        public bool ACTIVO { get; set; }
+
+        [NotMapped]
+        public string ConfirmarClave { get; set; }
 
         public bool? RESTABLECER { get; set; }
 

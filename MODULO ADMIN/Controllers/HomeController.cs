@@ -75,7 +75,7 @@ namespace MODULO_ADMIN.Controllers
                 {
                     // 1. Buscamos el usuario tal como está en la base de datos (con su CLAVE y FECHA intactas)
                    
-                    var usuarioOriginal = _userService.ObtenerPorId(usuario.ID_USUARIO);
+                    var usuarioOriginal = await _userService.ObtenerPorId(usuario.ID_USUARIO);
 
                     if (usuarioOriginal != null)
                     {

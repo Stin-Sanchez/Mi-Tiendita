@@ -26,35 +26,35 @@ namespace ENTIDADES.RepositoryImp
             return await table.ToListAsync();
         }
 
-        public T ObtenerPorId(object id)
+        public async Task <T> ObtenerPorIdAsync(object id)
         {
-            return table.Find(id);
+             return await table.FindAsync(id);
+
         }
 
-        public T Insertar(T obj)
+        public async Task <T> InsertarAsync(T obj)
         {
             table.Add(obj);
-            _context.SaveChanges();
+          await  _context.SaveChangesAsync();
 
             return obj; 
         }
 
-        public T Actualizar(T obj)
+        public async Task <T> ActualizarAsync(T obj)
         {
            table.Attach(obj);
-           _context.Entry(obj).State = EntityState.Modified;
-            _context.SaveChanges();
-
+          _context.Entry(obj).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
             return obj;
         }
 
-        public void Eliminar(object id)
+        public async Task EliminarAsync(object id)
         {
-            T existing = table.Find(id);
+            T existing = await table.FindAsync(id);
             if(existing != null)
             {
                 table.Remove(existing);
-                _context.SaveChanges();
+               await _context.SaveChangesAsync();
             }
            
         }

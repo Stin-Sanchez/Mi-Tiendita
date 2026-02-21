@@ -10,11 +10,11 @@ namespace ENTIDADES.Repository
 
     {
         Task<IEnumerable<T>> ObtenerTodos();
-        T ObtenerPorId(object id);
-        T Insertar(T obj);
-        T Actualizar(T obj);
-        void Eliminar(object id);
-     
+        Task<T> ObtenerPorIdAsync(object id);
+        Task<T> InsertarAsync(T obj);
+        Task<T> ActualizarAsync(T obj);
+        Task EliminarAsync(object id);
+
 
     }
 }

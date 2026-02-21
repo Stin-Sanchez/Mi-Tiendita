@@ -10,10 +10,10 @@ namespace DAL.Servicios
     public interface IProductoService
     {
         Task<IEnumerable<PRODUCTOS>> ObtenerTodos();
-        PRODUCTOS ObtenerPorId(long id);
-        PRODUCTOS Insertar(PRODUCTOS producto);
-        PRODUCTOS Actualizar(PRODUCTOS producto);
-        void Eliminar(long id);
+        Task <PRODUCTOS> ObtenerPorId(long id);
+        Task<PRODUCTOS> Insertar(PRODUCTOS producto);
+        Task<PRODUCTOS> Actualizar(PRODUCTOS producto);
+        Task Eliminar(long id);
 
         Task<int> ObtenerTotalProductos();
         Task<int> ObtenerProductosConStockCritico(int umbralMinimo = 5);

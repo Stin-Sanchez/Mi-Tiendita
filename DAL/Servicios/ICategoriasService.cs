@@ -10,9 +10,9 @@ namespace DAL.Servicios
     public interface ICategoriasService
     {
         Task<IEnumerable<CATEGORIAS>> ObtenerTodasLasCategorias();
-        CATEGORIAS ObtenerPorId(long id);
-        CATEGORIAS Insertar(CATEGORIAS categoria);
-        CATEGORIAS Actualizar(CATEGORIAS categoria);
-        void Eliminar(long id);
+        Task<CATEGORIAS> ObtenerPorId(long id);
+        Task<CATEGORIAS> Insertar(CATEGORIAS categoria);
+        Task<CATEGORIAS> Actualizar(CATEGORIAS categoria);
+        Task Eliminar(long id);
     }
 }
