@@ -9,12 +9,12 @@ namespace ENTIDADES.Repository
     public interface ICrudRepository <T> where T: class
 
     {
-        IEnumerable<T> ObtenerTodos();
-        T ObtenerPorId(object id);
-        void Insertar(T obj);
-        void Actualizar(T obj);
-        void Eliminar(object id);
-        void Guardar();
+        Task<IEnumerable<T>> ObtenerTodos();
+        Task<T> ObtenerPorIdAsync(object id);
+        Task<T> InsertarAsync(T obj);
+        Task<T> ActualizarAsync(T obj);
+        Task EliminarAsync(object id);
+
 
     }
 }

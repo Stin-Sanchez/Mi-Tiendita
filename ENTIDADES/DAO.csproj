@@ -53,20 +53,49 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Migrations\202606232348495_Initial.cs" />
+    <Compile Include="Migrations\202606232348495_Initial.Designer.cs">
+      <DependentUpon>202606232348495_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202606232356511_Initial1.cs" />
+    <Compile Include="Migrations\202606232356511_Initial1.Designer.cs">
+      <DependentUpon>202606232356511_Initial1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="ModelContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RepositoryImp\CarritoRepositoryImp.cs" />
+    <Compile Include="RepositoryImp\ClienteRepositoryImp.cs" />
+    <Compile Include="RepositoryImp\MarcaRepositoryImp.cs" />
+    <Compile Include="RepositoryImp\ProductoRepositoryImp.cs" />
     <Compile Include="RepositoryImp\RepositoryImp.cs" />
+    <Compile Include="RepositoryImp\VentaRepositoryImp.cs" />
+    <Compile Include="Repository\ICarritoRepository.cs" />
+    <Compile Include="Repository\IClienteRepository.cs" />
     <Compile Include="Repository\ICrudRepository.cs" />
+    <Compile Include="Repository\IMarcaRepository.cs" />
+    <Compile Include="Repository\IProductoRepository.cs" />
+    <Compile Include="Repository\IUsuarioRepository.cs" />
+    <Compile Include="RepositoryImp\UsuarioRepositoryImp.cs" />
+    <Compile Include="Repository\IventaRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DAO\ENTITIES.csproj">
+    <ProjectReference Include="..\DAO\MODELO.csproj">
       <Project>{ee3af549-3526-4014-a8bb-a8c104292601}</Project>
-      <Name>ENTITIES</Name>
+      <Name>MODELO</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\202606232348495_Initial.resx">
+      <DependentUpon>202606232348495_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202606232356511_Initial1.resx">
+      <DependentUpon>202606232356511_Initial1.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -4,5 +4,317 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Marca</h2>
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <div>
+        <p class="small mb-0" style="color:#9ca3af;font-size:.78rem;">Mantenimiento</p>
+        <h1 class="h3 mb-0" style="font-size:1.35rem;font-weight:800;color:#111827;letter-spacing:-.02em;">Marcas</h1>
+    </div>
+    <button type="button" class="btn btn-sm btn-success" onclick="abrirModal(null)">
+        <i class="fas fa-plus fa-sm mr-1"></i> Nueva marca
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex align-items-center justify-content-between">
+        <span style="font-weight:700;font-size:.875rem;color:#374151;">
+            <i class="fas fa-bookmark mr-2 text-primary"></i> Lista de Marcas
+        </span>
+    </div>
+    <div class="card-body">
+        <table id="table_marcas" class="display cell-border" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripci&oacute;n</th>
+                    <th>Activo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+    </div>
+
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="FormModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title" style="font-size:1rem;font-weight:700;" id="exampleModalLabel">Registrar marcas</h1>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body ">
+
+                <input id="txtId" type="hidden" value="0" />
+
+                <div class="row g-2">
+
+                    <div class="col-sm-12">
+                        <label for="txtNombres" class="form-label"> Nombre de la marca</label>
+                        <input type="text" class="form-control" id="txtNombres">
+                    </div>
+
+                 
+
+                    <div class="mb-3">
+                        <label for="txtDescripcion" class="form-label">Descripcion</label>
+                        <textarea class="form-control" id="txtDescripcion" rows="3"></textarea>
+                    </div>
+
+
+                    <div class="col-sm-12">
+                        <label for="cmbActivo" class="form-label">Activo</label>
+                        <select id="cmbActivo" class="form-control">
+                            <option selected>Seleccione</option>
+                            <option value="1">Si</option>
+                            <option value="0">No</option>
+
+                        </select>
+
+                    </div>
+
+
+
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-12">
+
+                        <div id="mensajeError" class="alert alert-danger" role="alert">
+                            A simple danger alert—check it out!
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarMarca()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts{
+
+
+    <script>
+
+        var tablaMarcas;
+        var filaSeleccionada;
+
+            tablaMarcas = $("#table_marcas").DataTable({
+                responsive: true,
+                ordering: false,
+                "ajax": {
+                    url: '@Url.Action("ObtenerMarcas", "Mantenedor")',
+                    type: "GET",
+                    dataType: "json"
+                },
+                "columns": [
+
+                    { "data": "NOMBRE" },
+                    { "data": "DESCRIPCION" },
+                  
+
+                    {
+                        "data": "ACTIVO", "render": function (valor) {
+                            if (valor) {
+                                return '<span class="badge badge-success" style="font-size:.72rem;padding:.3em .65em;border-radius:50em;">S&iacute;</span>';
+                            } else {
+                                return '<span class="badge badge-secondary" style="font-size:.72rem;padding:.3em .65em;border-radius:50em;">No</span>';
+                            }
+                        }
+                    },
+                    {
+                        "defaultContent": '<div class="btn-group btn-group-sm"><button type="button" class="btn btn-outline-primary btn-editar" title="Editar"><i class="fas fa-pen"></i></button><button type="button" class="btn btn-outline-danger btn-eliminar" title="Eliminar"><i class="fas fa-trash"></i></button></div>',
+                        "orderable": false,
+                        "searchable": false,
+                        "width": "90px"
+                    }
+                ],
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/2.3.7/i18n/es-ES.json"
+                }
+
+
+
+            });
+
+        function abrirModal(json) {
+
+
+            $("#txtId").val(0);
+            $("#txtNombres").val("");
+            $("#txtDescripcion").val("");
+            $("#cmbActivo").val(1);
+            $("#mensajeError").hide();
+
+
+            if (json != null) {
+                $("#txtId").val(json.ID_MARCA);
+                $("#txtNombres").val(json.NOMBRE);
+                $("#txtDescripcion").val(json.DESCRIPCION);
+                $("#cmbActivo").val(json.ACTIVO == true ? 1 : 0);
+            }
+
+            console.log(json);
+
+
+            $("#FormModal").modal("show")
+
+        }
+
+        $("#table_marcas tbody").on("click", '.btn-editar', function () {
+
+             filaSeleccionada = $(this).closest("tr");
+
+            var data = tablaMarcas.row(filaSeleccionada).data();
+
+            abrirModal(data)
+
+
+        })
+
+        $("#table_marcas tbody").on("click", '.btn-eliminar', function () {
+
+            var marcaSeleccionada = $(this).closest("tr");
+
+            var data = tablaMarcas.row(marcaSeleccionada).data();
+
+            swal({
+                title: "Esta seguro?",
+                text: "Desea eliminar esta marca? esta accion es ireversible",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-danger",
+                confirmButtonText: "Si",
+                cancelButtonText: "No",
+                closeOnConfirm: false,
+                closeOnCancel: false
+            },
+                function (isConfirm) {
+
+                    jQuery.ajax({
+                        url: '@Url.Action("EliminarMarca", "Mantenedor")',
+                        type: "POST",
+                        data: JSON.stringify({ id: data.ID_MARCA }),
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+
+                            debugger;
+
+                            if (data.resultado) {
+                                if (isConfirm) {
+                                    tablaMarcas.row(marcaSeleccionada).remove().draw();
+                                    swal("Marca eliminada!", "La marca seleccionada fue eliminada con exito", "success");
+                                }
+                                else {
+                                    swal("Cancelled", "Your imaginary file is safe :)", "error");
+                                }
+                            } else {
+                                swal("Nose pudo eliminar", data.mensaje, "error");
+                            }
+                        },
+                        error: function (error) {
+                            console.log(error)
+                        },
+
+                    });
+
+                });
+
+            console.log(data);
+
+
+        })
+
+
+        function guardarMarca() {
+
+            var MARCA = {
+
+                ID_MARCA: parseInt($("#txtId").val()) || 0,
+                ACTIVO: $("#cmbActivo").val() == 1 ? true : false,
+                NOMBRE: $("#txtNombres").val(),
+                DESCRIPCION: $("#txtDescripcion").val(),
+              
+
+            }
+
+
+            jQuery.ajax({
+
+                url: '@Url.Action("GuardarMarca", "Mantenedor")',
+                type: "POST",
+                data: JSON.stringify({ marca: MARCA }),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
+                    $(".modal-body").LoadingOverlay("hide");
+
+                    //Marca nueva
+                    if (MARCA.ID_MARCA == 0) {
+                        if (data.resultado != 0) {
+
+                            MARCA.ID_MARCA = data.resultado;
+                            tablaMarcas.row.add(MARCA).draw(false);
+                            $("#FormModal").modal("hide");
+
+                        } else {
+                            $("#mensajeError").text(data.mensaje);
+                            $("#mensajeError").show();
+                        }
+                    }
+
+                    //Marca a  actualizar
+                    else {
+                        if (data.resultado != null && data.resultado.ID_MARCA > 0) {
+                            tablaMarcas.row(filaSeleccionada).data(data.resultado).draw(false);
+                            filaSeleccionada = null;
+                            $("#FormModal").modal("hide");
+                            alert(data.mensaje);
+                        } else {
+                            $("#mensajeError").text(data.mensaje);
+                            $("#mensajeError").show();
+                        }
+
+                    }
+
+
+                }, error: function (error) {
+                    $(".modal-body").LoadingOverlay("hide");
+                    console.log("Error en la petición AJAX:", error);
+                    alert("Ocurrió un error de conexión.");
+                },
+                beforeSend: function () {
+                    $(".modal-body").LoadingOverlay("show", {
+                        imageResizeFactor: 2,
+                        text: "Cargando..",
+                        size: 14
+                    })
+
+                }
+            });
+        }
+
+
+    </script>
+}
+
+
+
 

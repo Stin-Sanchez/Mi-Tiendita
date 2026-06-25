@@ -11,7 +11,7 @@ namespace ENTIDADES.RepositoryImp
 {
     public class RepositoryImp<T> : ICrudRepository<T> where T : class
     {
-        private ModelContext _context = null;
+        protected ModelContext _context = null;
         private DbSet<T> table = null;
 
         // Constructor
@@ -21,36 +21,44 @@ namespace ENTIDADES.RepositoryImp
             table = _context.Set<T>(); // Convierte la T en la tabla correspondiente
         }
 
-        public IEnumerable<T> ObtenerTodos()
+        public async Task<IEnumerable<T>> ObtenerTodos()
         {
-            return table.ToList();
+            return await table.ToListAsync();
         }
 
-        public T ObtenerPorId(object id)
+        public async Task <T> ObtenerPorIdAsync(object id)
         {
-            return table.Find(id);
+             return await table.FindAsync(id);
+
         }
 
-        public void Insertar(T obj)
+        public async Task <T> InsertarAsync(T obj)
         {
             table.Add(obj);
+          await  _context.SaveChangesAsync();
+
+            return obj; 
         }
 
-        public void Actualizar(T obj)
+        public async Task <T> ActualizarAsync(T obj)
         {
-            table.Attach(obj);
-            _context.Entry(obj).State = EntityState.Modified;
+           table.Attach(obj);
+          _context.Entry(obj).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return obj;
         }
 
-        public void Eliminar(object id)
+        public async Task EliminarAsync(object id)
         {
-            T existing = table.Find(id);
-            table.Remove(existing);
+            T existing = await table.FindAsync(id);
+            if(existing != null)
+            {
+                table.Remove(existing);
+               await _context.SaveChangesAsync();
+            }
+           
         }
 
-        public void Guardar()
-        {
-            _context.SaveChanges();
-        }
+      
     }
 }

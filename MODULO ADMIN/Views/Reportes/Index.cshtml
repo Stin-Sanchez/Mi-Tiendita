@@ -1,0 +1,389 @@
+@{
+    ViewBag.Title = "Reportes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <div>
+        <p class="small mb-0" style="color:#9ca3af;font-size:.78rem;">Administraci&oacute;n</p>
+        <h1 class="h3 mb-0" style="font-size:1.35rem;font-weight:800;color:#111827;letter-spacing:-.02em;">Reportes</h1>
+    </div>
+</div>
+
+<!-- Filter bar -->
+<div class="card mb-4">
+    <div class="card-body py-3">
+        <div class="form-row align-items-end">
+            <div class="col-sm-4 col-md-3 mb-2 mb-sm-0">
+                <label class="small font-weight-bold mb-1">Desde</label>
+                <input type="date" id="txtDesde" class="form-control form-control-sm" />
+            </div>
+            <div class="col-sm-4 col-md-3 mb-2 mb-sm-0">
+                <label class="small font-weight-bold mb-1">Hasta</label>
+                <input type="date" id="txtHasta" class="form-control form-control-sm" />
+            </div>
+            <div class="col-sm-4 col-md-3">
+                <button id="btnGenerar" class="btn btn-primary btn-sm" onclick="cargarReporte()">
+                    <i class="fas fa-chart-bar fa-sm mr-1"></i> Generar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading spinner -->
+<div id="divSpinner" class="text-center py-5" style="display:none;">
+    <i class="fas fa-circle-notch fa-spin fa-2x" style="color:#3B82F6;"></i>
+    <p class="mt-2 small text-muted">Cargando datos del per&iacute;odo&hellip;</p>
+</div>
+
+<!-- Report content (hidden until first load) -->
+<div id="divReporte" style="display:none;">
+
+    <!-- KPI row -->
+    <div class="row mb-4">
+        <div class="col-xl-4 col-md-6 mb-3">
+            <div class="card h-100" style="border-top:3px solid #3B82F6;">
+                <div class="card-body" style="padding:.9rem 1.1rem;">
+                    <p style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin-bottom:.4rem;">
+                        <i class="fas fa-dollar-sign mr-1" style="color:#3B82F6;"></i> Monto Total del Per&iacute;odo
+                    </p>
+                    <h2 id="kpiMonto" style="font-size:1.7rem;font-weight:800;color:#111827;line-height:1;margin-bottom:.25rem;">$0.00</h2>
+                    <p class="mb-0" style="color:#9ca3af;font-size:.73rem;">en el rango de fechas seleccionado</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6 mb-3">
+            <div class="card h-100" style="border-top:3px solid #059669;">
+                <div class="card-body" style="padding:.9rem 1.1rem;">
+                    <p style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin-bottom:.4rem;">
+                        <i class="fas fa-shopping-cart mr-1" style="color:#059669;"></i> Total Transacciones
+                    </p>
+                    <h2 id="kpiTransacciones" style="font-size:1.7rem;font-weight:800;color:#111827;line-height:1;margin-bottom:.25rem;">0</h2>
+                    <p class="mb-0" style="color:#9ca3af;font-size:.73rem;">pedidos &uacute;nicos en el per&iacute;odo</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6 mb-3">
+            <div class="card h-100" style="border-top:3px solid #d97706;">
+                <div class="card-body" style="padding:.9rem 1.1rem;">
+                    <p style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin-bottom:.4rem;">
+                        <i class="fas fa-receipt mr-1" style="color:#d97706;"></i> Ticket Promedio
+                    </p>
+                    <h2 id="kpiTicket" style="font-size:1.7rem;font-weight:800;color:#111827;line-height:1;margin-bottom:.25rem;">$0.00</h2>
+                    <p class="mb-0" style="color:#9ca3af;font-size:.73rem;">por transacci&oacute;n en el per&iacute;odo</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts row -->
+    <div class="row mb-4">
+        <!-- Line chart: ventas por día -->
+        <div class="col-lg-8 mb-3">
+            <div class="card shadow h-100">
+                <div class="card-header py-2 d-flex align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-line mr-1"></i> Ventas por D&iacute;a
+                    </h6>
+                    <span id="lblRangoChart" class="small text-muted"></span>
+                </div>
+                <div class="card-body" style="padding:.75rem 1rem;">
+                    <div style="position:relative;height:250px;">
+                        <canvas id="chartVentasDia"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Horizontal bar: top 5 productos -->
+        <div class="col-lg-4 mb-3">
+            <div class="card shadow h-100">
+                <div class="card-header py-2">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-trophy mr-1"></i> Top 5 Productos m&aacute;s vendidos
+                    </h6>
+                </div>
+                <div class="card-body" style="padding:.75rem 1rem;">
+                    <div style="position:relative;height:250px;">
+                        <canvas id="chartTopProductos"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tables row -->
+    <div class="row">
+        <!-- Top 10 Productos -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-2">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-boxes mr-1"></i> Top 10 Productos
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm mb-0" id="tblTopProductos">
+                            <thead style="background:#F9FAFB;">
+                                <tr>
+                                    <th style="font-size:.72rem;font-weight:700;color:#6B7280;padding:.6rem 1rem;">#</th>
+                                    <th style="font-size:.72rem;font-weight:700;color:#6B7280;padding:.6rem 1rem;">Producto</th>
+                                    <th style="font-size:.72rem;font-weight:700;color:#6B7280;padding:.6rem 1rem;text-align:right;">Cantidad</th>
+                                    <th style="font-size:.72rem;font-weight:700;color:#6B7280;padding:.6rem 1rem;text-align:right;">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyTopProductos">
+                                <tr><td colspan="4" class="text-center text-muted py-3 small">Sin datos</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Top 10 Clientes -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-2">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-users mr-1"></i> Top 10 Clientes
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm mb-0" id="tblTopClientes">
+                            <thead style="background:#F9FAFB;">
+                                <tr>
+                                    <th style="font-size:.72rem;font-weight:700;color:#6B7280;padding:.6rem 1rem;">#</th>
+                                    <th style="font-size:.72rem;font-weight:700;color:#6B7280;padding:.6rem 1rem;">Cliente</th>
+                                    <th style="font-size:.72rem;font-weight:700;color:#6B7280;padding:.6rem 1rem;text-align:right;">Pedidos</th>
+                                    <th style="font-size:.72rem;font-weight:700;color:#6B7280;padding:.6rem 1rem;text-align:right;">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyTopClientes">
+                                <tr><td colspan="4" class="text-center text-muted py-3 small">Sin datos</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section scripts {
+    @Scripts.Render("~/bundles/charts")
+    <script>
+
+        var chartLinea = null;
+        var chartBarras = null;
+        var moneda = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+
+        $(document).ready(function () {
+            // Set default date range: last 30 days
+            var hoy = new Date();
+            var hace30 = new Date();
+            hace30.setDate(hoy.getDate() - 30);
+
+            $("#txtHasta").val(formatFecha(hoy));
+            $("#txtDesde").val(formatFecha(hace30));
+
+            // Load on page ready
+            cargarReporte();
+        });
+
+        function formatFecha(d) {
+            var mm = ('0' + (d.getMonth() + 1)).slice(-2);
+            var dd = ('0' + d.getDate()).slice(-2);
+            return d.getFullYear() + '-' + mm + '-' + dd;
+        }
+
+        function cargarReporte() {
+            var desde = $("#txtDesde").val();
+            var hasta = $("#txtHasta").val();
+
+            if (!desde || !hasta) {
+                swal("Atención", "Por favor seleccione un rango de fechas.", "warning");
+                return;
+            }
+
+            // Show spinner, hide report
+            $("#divSpinner").show();
+            $("#divReporte").hide();
+            $("#btnGenerar").prop("disabled", true).html('<i class="fas fa-spinner fa-spin fa-sm mr-1"></i> Cargando...');
+
+            $.ajax({
+                url: '@Url.Action("VentasPorPeriodo", "Reportes")',
+                type: "GET",
+                dataType: "json",
+                data: { fechaInicio: desde, fechaFin: hasta },
+                success: function (r) {
+                    if (!r.resultado) {
+                        swal("Error", "No se pudieron cargar los datos del reporte.", "error");
+                        return;
+                    }
+                    renderReporte(r, desde, hasta);
+                },
+                error: function (err) {
+                    console.error("Error al obtener reporte:", err);
+                    swal("Error", "Ocurrió un error al contactar el servidor.", "error");
+                },
+                complete: function () {
+                    $("#divSpinner").hide();
+                    $("#divReporte").show();
+                    $("#btnGenerar").prop("disabled", false).html('<i class="fas fa-chart-bar fa-sm mr-1"></i> Generar');
+                }
+            });
+        }
+
+        function renderReporte(r, desde, hasta) {
+            // --- KPIs ---
+            $("#kpiMonto").text(moneda.format(r.kpi.totalMonto));
+            $("#kpiTransacciones").text(r.kpi.totalTransacciones);
+            $("#kpiTicket").text(moneda.format(r.kpi.ticketPromedio));
+            $("#lblRangoChart").text(desde + "  →  " + hasta);
+
+            // --- Line chart: Ventas por día ---
+            var labelsLinea = r.porFecha.map(function (x) { return x.fecha; });
+            var dataLinea   = r.porFecha.map(function (x) { return x.monto; });
+
+            if (chartLinea) { chartLinea.destroy(); }
+            chartLinea = new Chart(document.getElementById('chartVentasDia').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: labelsLinea,
+                    datasets: [{
+                        label: 'Ventas ($)',
+                        data: dataLinea,
+                        borderColor: '#3B82F6',
+                        backgroundColor: 'rgba(59,130,246,0.08)',
+                        pointBackgroundColor: '#3B82F6',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        xAxes: [{
+                            gridLines: { display: false },
+                            ticks: { maxTicksLimit: 12, fontColor: '#9ca3af', fontSize: 11 }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                fontColor: '#9ca3af',
+                                fontSize: 11,
+                                callback: function (v) { return '$' + v.toFixed(0); }
+                            },
+                            gridLines: { color: 'rgba(0,0,0,0.04)' }
+                        }]
+                    },
+                    legend: { display: false },
+                    tooltips: {
+                        backgroundColor: '#1f2937',
+                        titleFontColor: '#fff',
+                        bodyFontColor: '#d1d5db',
+                        callbacks: {
+                            label: function (t) { return ' ' + moneda.format(t.yLabel); }
+                        }
+                    }
+                }
+            });
+
+            // --- Horizontal bar chart: Top 5 productos ---
+            var top5 = r.topProductos.slice(0, 5);
+            var labelsBar = top5.map(function (x) {
+                return x.producto && x.producto.length > 22 ? x.producto.substring(0, 22) + '…' : (x.producto || 'S/N');
+            });
+            var dataBar = top5.map(function (x) { return x.total; });
+            var coloresBar = ['#3B82F6', '#059669', '#0284c7', '#d97706', '#8b5cf6'];
+
+            if (chartBarras) { chartBarras.destroy(); }
+            chartBarras = new Chart(document.getElementById('chartTopProductos').getContext('2d'), {
+                type: 'horizontalBar',
+                data: {
+                    labels: labelsBar,
+                    datasets: [{
+                        label: 'Ventas ($)',
+                        data: dataBar,
+                        backgroundColor: coloresBar.slice(0, top5.length),
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    legend: { display: false },
+                    scales: {
+                        xAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                fontColor: '#9ca3af',
+                                fontSize: 10,
+                                callback: function (v) { return '$' + v.toFixed(0); }
+                            },
+                            gridLines: { color: 'rgba(0,0,0,0.04)' }
+                        }],
+                        yAxes: [{
+                            ticks: { fontColor: '#374151', fontSize: 11 },
+                            gridLines: { display: false }
+                        }]
+                    },
+                    tooltips: {
+                        backgroundColor: '#1f2937',
+                        titleFontColor: '#fff',
+                        bodyFontColor: '#d1d5db',
+                        callbacks: {
+                            label: function (t) { return ' ' + moneda.format(t.xLabel); }
+                        }
+                    }
+                }
+            });
+
+            // --- Table: Top 10 Productos ---
+            var htmlProd = '';
+            if (r.topProductos.length === 0) {
+                htmlProd = '<tr><td colspan="4" class="text-center text-muted py-3 small">Sin datos para el per&iacute;odo</td></tr>';
+            } else {
+                $.each(r.topProductos, function (i, p) {
+                    var nombre = p.producto || '<em class="text-muted">Sin nombre</em>';
+                    htmlProd += '<tr>'
+                        + '<td style="padding:.5rem 1rem;font-size:.8rem;color:#9ca3af;">' + (i + 1) + '</td>'
+                        + '<td style="padding:.5rem 1rem;font-size:.8125rem;font-weight:600;color:#111827;">' + escHtml(nombre) + '</td>'
+                        + '<td style="padding:.5rem 1rem;font-size:.8125rem;text-align:right;">' + p.cantidad + '</td>'
+                        + '<td style="padding:.5rem 1rem;font-size:.8125rem;text-align:right;font-weight:700;color:#059669;">' + moneda.format(p.total) + '</td>'
+                        + '</tr>';
+                });
+            }
+            $("#tbodyTopProductos").html(htmlProd);
+
+            // --- Table: Top 10 Clientes ---
+            var htmlCli = '';
+            if (r.topClientes.length === 0) {
+                htmlCli = '<tr><td colspan="4" class="text-center text-muted py-3 small">Sin datos para el per&iacute;odo</td></tr>';
+            } else {
+                $.each(r.topClientes, function (i, c) {
+                    var nombre = c.cliente || '<em class="text-muted">An&oacute;nimo</em>';
+                    htmlCli += '<tr>'
+                        + '<td style="padding:.5rem 1rem;font-size:.8rem;color:#9ca3af;">' + (i + 1) + '</td>'
+                        + '<td style="padding:.5rem 1rem;font-size:.8125rem;font-weight:600;color:#111827;">' + escHtml(nombre) + '</td>'
+                        + '<td style="padding:.5rem 1rem;font-size:.8125rem;text-align:right;">' + c.pedidos + '</td>'
+                        + '<td style="padding:.5rem 1rem;font-size:.8125rem;text-align:right;font-weight:700;color:#3B82F6;">' + moneda.format(c.total) + '</td>'
+                        + '</tr>';
+                });
+            }
+            $("#tbodyTopClientes").html(htmlCli);
+        }
+
+        function escHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+    </script>
+}

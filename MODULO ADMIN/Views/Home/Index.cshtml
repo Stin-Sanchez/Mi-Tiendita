@@ -1,31 +1,409 @@
-﻿@{
-    ViewBag.Title = "Home Page";
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-3">
+    <div>
+        <h1 class="h5 mb-0" style="font-weight:800;color:#111827;">Dashboard</h1>
+        <p class="mb-0" id="lblFechaHoy" style="font-size:.75rem;color:#9ca3af;"></p>
+    </div>
+    <a href="#historial" class="btn btn-sm btn-primary">
+        <i class="fas fa-history fa-sm mr-1"></i> Ver Historial
+    </a>
 </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
-        </p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
+<!-- KPI row -->
+<div class="row mb-2">
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card" style="border-top:3px solid #3B82F6;">
+            <div class="card-body" style="padding:.9rem 1.1rem;">
+                <p style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin-bottom:.4rem;">Total de Usuarios</p>
+                <h2 style="font-size:1.7rem;font-weight:800;color:#111827;line-height:1;margin-bottom:.25rem;" id="lblTotalUsuarios"><i class="fas fa-circle-notch fa-spin" style="font-size:.9rem;color:#d1d5db;"></i></h2>
+                <p class="mb-0" style="color:#9ca3af;font-size:.73rem;"><span id="lblUsuariosTrend" style="color:#059669;font-weight:700;"></span> acumulado</p>
+            </div>
+        </div>
     </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card" style="border-top:3px solid #059669;">
+            <div class="card-body" style="padding:.9rem 1.1rem;">
+                <p style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin-bottom:.4rem;">Ventas del D&iacute;a</p>
+                <h2 style="font-size:1.7rem;font-weight:800;color:#111827;line-height:1;margin-bottom:.25rem;" id="lblVentasDelDia"><i class="fas fa-circle-notch fa-spin" style="font-size:.9rem;color:#d1d5db;"></i></h2>
+                <p class="mb-0" style="color:#9ca3af;font-size:.73rem;"><span id="lblVentasTrend" style="color:#3B82F6;font-weight:700;"></span> hoy</p>
+            </div>
+        </div>
     </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card" style="border-top:3px solid #0284c7;">
+            <div class="card-body" style="padding:.9rem 1.1rem;">
+                <p style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin-bottom:.4rem;">Total de Productos</p>
+                <h2 style="font-size:1.7rem;font-weight:800;color:#111827;line-height:1;margin-bottom:.25rem;" id="lblTotalProductos"><i class="fas fa-circle-notch fa-spin" style="font-size:.9rem;color:#d1d5db;"></i></h2>
+                <p class="mb-0" style="color:#9ca3af;font-size:.73rem;">en cat&aacute;logo activo</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card" style="border-top:3px solid #d97706;">
+            <div class="card-body" style="padding:.9rem 1.1rem;">
+                <p style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin-bottom:.4rem;">Stock Cr&iacute;tico</p>
+                <h2 style="font-size:1.7rem;font-weight:800;line-height:1;margin-bottom:.25rem;" id="lblStockCritico"><i class="fas fa-circle-notch fa-spin" style="font-size:.9rem;color:#d1d5db;"></i></h2>
+                <p class="mb-0" style="color:#9ca3af;font-size:.73rem;">productos con stock &le; 5 uds.</p>
+            </div>
+        </div>
     </div>
 </div>
+
+<!-- Fila 2: Gráficas -->
+<div class="row align-items-stretch mb-3">
+    <div class="col-xl-8 col-lg-7 d-flex flex-column mb-3">
+        <div class="card shadow flex-fill">
+            <div class="card-header py-2 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-chart-area mr-1"></i> Ventas &mdash; &uacute;ltimos 7 d&iacute;as
+                </h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in">
+                        <div class="dropdown-header">Per&iacute;odo:</div>
+                        <a class="dropdown-item" href="#" onclick="cargarGraficaVentas(7)">&uacute;ltimos 7 d&iacute;as</a>
+                        <a class="dropdown-item" href="#" onclick="cargarGraficaVentas(30)">&uacute;ltimos 30 d&iacute;as</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body d-flex flex-column" style="padding:.75rem 1rem;">
+                <div class="chart-area flex-fill" style="min-height:200px;">
+                    <canvas id="myAreaChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-lg-5 d-flex flex-column mb-3">
+        <div class="card shadow flex-fill">
+            <div class="card-header py-2">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-chart-pie mr-1"></i> Productos por Categor&iacute;a
+                </h6>
+            </div>
+            <div class="card-body d-flex flex-column justify-content-center" style="padding:.75rem 1rem;">
+                <div class="chart-pie pt-2 pb-1" style="height:185px">
+                    <canvas id="myDonutChart"></canvas>
+                </div>
+                <div class="mt-2 text-center small" id="donutLeyenda"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fila 3: Métricas (principal) + Estado del sistema (secundario) -->
+<div class="row align-items-stretch mb-3">
+
+    <!-- Métricas — zona principal: más ancha, más peso visual -->
+    <div class="col-lg-8 d-flex flex-column mb-3">
+        <div class="card shadow flex-fill">
+            <div class="card-header py-2 d-flex align-items-center justify-content-between">
+                <span style="font-weight:700;font-size:.875rem;color:#374151;">
+                    <i class="fas fa-chart-line mr-2 text-primary"></i> M&eacute;tricas del negocio
+                </span>
+                <small class="text-muted">Objetivos del per&iacute;odo</small>
+            </div>
+            <div class="card-body">
+
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-baseline mb-1">
+                        <span style="font-size:.8rem;font-weight:600;color:#374151;">Productos activos</span>
+                        <span style="font-size:.8rem;font-weight:700;color:#3B82F6;" id="pctProductosActivos">&mdash;</span>
+                    </div>
+                    <div class="progress" style="height:6px;border-radius:3px;">
+                        <div class="progress-bar bg-primary" id="barProductosActivos" role="progressbar" style="width:0%;border-radius:3px;"></div>
+                    </div>
+                    <small class="text-muted" style="font-size:.72rem;">Porcentaje del cat&aacute;logo sin stock cr&iacute;tico</small>
+                </div>
+
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-baseline mb-1">
+                        <span style="font-size:.8rem;font-weight:600;color:#374151;">Usuarios registrados</span>
+                        <span style="font-size:.8rem;font-weight:700;color:#059669;" id="pctUsuarios">&mdash;</span>
+                    </div>
+                    <div class="progress" style="height:6px;border-radius:3px;">
+                        <div class="progress-bar bg-success" id="barUsuarios" role="progressbar" style="width:0%;border-radius:3px;"></div>
+                    </div>
+                    <small class="text-muted" style="font-size:.72rem;">Meta: 100 clientes registrados</small>
+                </div>
+
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-baseline mb-1">
+                        <span style="font-size:.8rem;font-weight:600;color:#374151;">Ventas del d&iacute;a</span>
+                        <span style="font-size:.8rem;font-weight:700;color:#0284c7;" id="pctVentasDia">&mdash;</span>
+                    </div>
+                    <div class="progress" style="height:6px;border-radius:3px;">
+                        <div class="progress-bar bg-info" id="barVentasDia" role="progressbar" style="width:0%;border-radius:3px;"></div>
+                    </div>
+                    <small class="text-muted" style="font-size:.72rem;">Meta diaria: $500</small>
+                </div>
+
+                <div class="mb-0">
+                    <div class="d-flex justify-content-between align-items-baseline mb-1">
+                        <span style="font-size:.8rem;font-weight:600;color:#374151;">Stock cr&iacute;tico</span>
+                        <span style="font-size:.8rem;font-weight:700;" id="pctStockCritico">&mdash;</span>
+                    </div>
+                    <div class="progress" style="height:6px;border-radius:3px;">
+                        <div class="progress-bar bg-danger" id="barStockCritico" role="progressbar" style="width:0%;border-radius:3px;"></div>
+                    </div>
+                    <small class="text-muted" style="font-size:.72rem;">Productos con stock &le; 5 unidades &mdash; menor es mejor</small>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Estado del sistema — panel lateral compacto -->
+    <div class="col-lg-4 d-flex flex-column mb-3">
+        <div class="card shadow flex-fill">
+            <div class="card-header py-2">
+                <span style="font-weight:700;font-size:.875rem;color:#374151;">
+                    <i class="fas fa-circle mr-2 text-success" style="font-size:.55rem;vertical-align:middle;"></i> Estado del sistema
+                </span>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+
+                    <div class="list-group-item px-3 py-3 d-flex align-items-center">
+                        <div class="mr-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                             style="width:36px;height:36px;background:#DBEAFE;border-radius:8px;">
+                            <i class="fas fa-dollar-sign" style="color:#3B82F6;font-size:.85rem;"></i>
+                        </div>
+                        <div class="flex-grow-1 min-width-0">
+                            <div style="font-size:.7rem;color:#9CA3AF;font-weight:500;text-transform:uppercase;letter-spacing:.05em;">Ingresos hoy</div>
+                            <strong style="font-size:.95rem;color:#111827;" id="resumenVentas">&mdash;</strong>
+                        </div>
+                        <span class="badge badge-pill" id="resumenQVentas"
+                              style="background:#EFF6FF;color:#3B82F6;font-size:.68rem;font-weight:600;">hoy</span>
+                    </div>
+
+                    <div class="list-group-item px-3 py-3 d-flex align-items-center">
+                        <div class="mr-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                             style="width:36px;height:36px;background:#D1FAE5;border-radius:8px;">
+                            <i class="fas fa-box-open" style="color:#059669;font-size:.85rem;"></i>
+                        </div>
+                        <div class="flex-grow-1 min-width-0">
+                            <div style="font-size:.7rem;color:#9CA3AF;font-weight:500;text-transform:uppercase;letter-spacing:.05em;">Cat&aacute;logo activo</div>
+                            <strong style="font-size:.95rem;color:#111827;" id="resumenProductos">&mdash;</strong>
+                        </div>
+                        <span class="badge badge-pill" id="resumenCategorias"
+                              style="background:#ECFDF5;color:#059669;font-size:.68rem;font-weight:600;">&mdash;</span>
+                    </div>
+
+                    <div class="list-group-item px-3 py-3 d-flex align-items-center">
+                        <div class="mr-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                             style="width:36px;height:36px;background:#FEE2E2;border-radius:8px;">
+                            <i class="fas fa-exclamation-triangle" style="color:#dc2626;font-size:.85rem;"></i>
+                        </div>
+                        <div class="flex-grow-1 min-width-0">
+                            <div style="font-size:.7rem;color:#9CA3AF;font-weight:500;text-transform:uppercase;letter-spacing:.05em;">Alertas de stock</div>
+                            <strong style="font-size:.95rem;" id="resumenStock">&mdash;</strong>
+                        </div>
+                        <a href="@Url.Action("Inventario","Inventario")"
+                           style="font-size:.68rem;font-weight:600;background:#FEE2E2;color:#dc2626;padding:.25em .6em;border-radius:50em;white-space:nowrap;text-decoration:none;">
+                            Revisar
+                        </a>
+                    </div>
+
+                    <div class="list-group-item px-3 py-3 d-flex align-items-center">
+                        <div class="mr-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                             style="width:36px;height:36px;background:#E0F2FE;border-radius:8px;">
+                            <i class="fas fa-users" style="color:#0284c7;font-size:.85rem;"></i>
+                        </div>
+                        <div class="flex-grow-1 min-width-0">
+                            <div style="font-size:.7rem;color:#9CA3AF;font-weight:500;text-transform:uppercase;letter-spacing:.05em;">Usuarios admin</div>
+                            <strong style="font-size:.95rem;color:#111827;" id="resumenUsuarios">&mdash;</strong>
+                        </div>
+                        <a href="@Url.Action("Usuarios","Home")"
+                           style="font-size:.68rem;font-weight:600;background:#E0F2FE;color:#0284c7;padding:.25em .6em;border-radius:50em;white-space:nowrap;text-decoration:none;">
+                            Ver todos
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Historial de ventas -->
+<a name="historial"></a>
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-history mr-1"></i> Historial de Ventas
+        </h6>
+        <a href="@Url.Action("Index","Pedidos")" class="btn btn-sm btn-outline-secondary" style="font-size:.75rem;"><i class="fas fa-external-link-alt mr-1"></i> Ver en Pedidos</a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="tabla" class="table table-bordered table-hover" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Fecha de venta</th>
+                        <th>Cliente</th>
+                        <th>Producto</th>
+                        <th>Precio</th>
+                        <th>Cantidad</th>
+                        <th>Total</th>
+                        <th>ID Transacci&oacute;n</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+@Scripts.Render("~/bundles/charts")
+<script>
+$(document).ready(function () {
+
+    var hoy = new Date();
+    $("#lblFechaHoy").text(hoy.toLocaleDateString('es-ES',{weekday:'long',year:'numeric',month:'long',day:'numeric'}));
+
+    var colorPrimary = '#3B82F6';
+    var colorSuccess = '#059669';
+    var colorInfo    = '#0284c7';
+    var colorWarning = '#d97706';
+    var colorDanger  = '#dc2626';
+
+    /* KPI + métricas */
+    $.ajax({
+        url: '@Url.Action("ObtenerResumenDashboard","Home")',
+        type: "GET", dataType: "json",
+        success: function (r) {
+            var moneda = new Intl.NumberFormat('en-US', { style:'currency', currency:'USD' });
+
+            $("#lblTotalUsuarios").text(r.totalUsuarios);
+            $("#lblUsuariosTrend").text(r.totalUsuarios + " usuarios");
+            $("#lblVentasDelDia").text(moneda.format(r.ventasDia));
+            $("#lblVentasTrend").text(r.cantidadVentasDia > 0 ? r.cantidadVentasDia + " transacciones" : "sin ventas a&uacute;n");
+            $("#lblTotalProductos").text(r.totalProductos);
+
+            var s = r.stockCritico;
+            $("#lblStockCritico").text(s).css("color", s > 0 ? "#dc2626" : "#059669");
+            if (s > 0) { $("#badgeStockCritico").text(s).show(); }
+
+            $("#resumenVentas").text(moneda.format(r.ventasDia));
+            $("#resumenQVentas").text(r.cantidadVentasDia !== undefined ? r.cantidadVentasDia + " ventas" : "hoy");
+            $("#resumenProductos").text(r.totalProductos + " productos");
+            $("#resumenCategorias").text(r.totalCategorias !== undefined ? r.totalCategorias + " categorías" : "");
+            $("#resumenStock").text(s + " con stock crítico");
+            $("#resumenUsuarios").text(r.totalUsuarios + " registrados");
+
+            var pctProd  = r.totalProductos > 0 ? Math.min(Math.round((r.totalProductos - s) / r.totalProductos * 100), 100) : 0;
+            var pctUsers = Math.min(Math.round(r.totalUsuarios / 100 * 100), 100);
+            var pctVenta = Math.min(Math.round(r.ventasDia / 500 * 100), 100);
+            var pctStock = r.totalProductos > 0 ? Math.min(Math.round(s / r.totalProductos * 100), 100) : 0;
+
+            function bar(sel, pct, lbl, txt) {
+                $(sel).css("width", pct + "%");
+                $(lbl).text(txt);
+            }
+            bar("#barProductosActivos", pctProd,  "#pctProductosActivos", pctProd + "%");
+            bar("#barUsuarios",         pctUsers, "#pctUsuarios",         r.totalUsuarios + " / 100");
+            bar("#barVentasDia",        pctVenta, "#pctVentasDia",        moneda.format(r.ventasDia));
+            bar("#barStockCritico",     pctStock, "#pctStockCritico",     s + " productos");
+        }
+    });
+
+    /* Gráfica de área — datos reales vacíos, sin inventar nada */
+    var areaCtx = document.getElementById('myAreaChart').getContext('2d');
+    var areaChart;
+    var donutColors = [colorPrimary, colorSuccess, colorInfo, colorWarning, colorDanger, '#8b5cf6', '#ec4899'];
+
+    function buildEmptyArea(dias) {
+        var labels = [], data = [];
+        for (var i = dias - 1; i >= 0; i--) {
+            var d = new Date(); d.setDate(d.getDate() - i);
+            labels.push(d.toLocaleDateString('es-ES', { month:'short', day:'numeric' }));
+            data.push(0);
+        }
+        return { labels: labels, data: data };
+    }
+
+    window.cargarGraficaVentas = function(dias) {
+        var r = buildEmptyArea(dias);
+        if (areaChart) { areaChart.data.labels = r.labels; areaChart.data.datasets[0].data = r.data; areaChart.update(); }
+    };
+
+    var areaData = buildEmptyArea(7);
+    areaChart = new Chart(areaCtx, {
+        type: 'line',
+        data: {
+            labels: areaData.labels,
+            datasets: [{ label: 'Ventas ($)', data: areaData.data,
+                borderColor: colorPrimary, backgroundColor: 'rgba(59,130,246,0.08)',
+                pointBackgroundColor: colorPrimary, pointBorderColor: '#fff',
+                pointBorderWidth: 2, pointRadius: 4, fill: true, tension: 0.4 }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                xAxes: [{ gridLines: { display: false }, ticks: { maxTicksLimit: 7, fontColor: '#9ca3af' } }],
+                yAxes: [{ ticks: { beginAtZero: true, suggestedMax: 100, maxTicksLimit: 5, fontColor: '#9ca3af', callback: function(v){ return '$'+v; } }, gridLines: { color: 'rgba(0,0,0,0.04)' } }]
+            },
+            legend: { display: false },
+            tooltips: { backgroundColor: '#1f2937', titleFontColor: '#fff', bodyFontColor: '#d1d5db',
+                callbacks: { label: function(t){ return ' $'+t.yLabel.toFixed(2); } } }
+        }
+    });
+
+    /* Donut — placeholder honesto */
+    function renderDonut(labels, data) {
+        new Chart(document.getElementById('myDonutChart').getContext('2d'), {
+            type: 'doughnut',
+            data: { labels: labels, datasets: [{ data: data, backgroundColor: donutColors.slice(0, labels.length), borderWidth: 2, borderColor: '#fff' }] },
+            options: { maintainAspectRatio: false, cutoutPercentage: 72, legend: { display: false },
+                tooltips: { backgroundColor: '#1f2937', titleFontColor: '#fff', bodyFontColor: '#d1d5db' } }
+        });
+        var leyenda = '';
+        for (var i = 0; i < labels.length; i++) {
+            leyenda += '<span class="mr-3"><i class="fas fa-circle" style="color:' + donutColors[i] + '"></i> ' + labels[i] + '</span>';
+        }
+        $("#donutLeyenda").html(leyenda);
+    }
+    renderDonut(['Sin datos'], [1]);
+
+    /* DataTable historial */
+    var tablaHistorial = $('#tabla').DataTable({
+        responsive: true, ordering: false,
+        ajax: {
+            url: '@Url.Action("ListarHistorialVentas","Home")',
+            type: "GET", dataType: "json",
+            data: function (d) {
+                d.fechaInicio   = $("#txtFechaInicio").val();
+                d.fechaFin      = $("#txtFechaFin").val();
+                d.idTransaccion = $("#txtIdTransaccion").val();
+            }
+        },
+        columns: [
+            { data: "FechaVenta" }, { data: "Cliente" }, { data: "Producto" },
+            { data: "Precio",   render: $.fn.dataTable.render.number(',', '.', 2, '$') },
+            { data: "Cantidad" },
+            { data: "Total",    render: $.fn.dataTable.render.number(',', '.', 2, '$') },
+            { data: "IdTransaccion" }
+        ],
+        language: { url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json" }
+    });
+
+    $("#btnBuscar").on("click", function () {
+        var btn = $(this);
+        btn.html('<i class="fas fa-spinner fa-spin fa-sm mr-1"></i> Buscando...').prop('disabled', true);
+        tablaHistorial.ajax.reload(function () {
+            btn.html('<i class="fas fa-search fa-sm mr-1"></i> Buscar').prop('disabled', false);
+        });
+    });
+
+});
+</script>
+}

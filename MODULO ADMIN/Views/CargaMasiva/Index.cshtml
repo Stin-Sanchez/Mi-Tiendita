@@ -1,0 +1,341 @@
+@{
+    ViewBag.Title = "Carga Masiva";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <div>
+        <p class="small mb-0" style="color:#9ca3af;font-size:.78rem;">Administraci&oacute;n</p>
+        <h1 class="h3 mb-0" style="font-size:1.35rem;font-weight:800;color:#111827;letter-spacing:-.02em;">
+            <i class="fas fa-file-upload mr-2 text-primary"></i> Carga Masiva de Datos
+        </h1>
+    </div>
+</div>
+
+<!-- Info Alert -->
+<div class="alert alert-info d-flex align-items-start mb-4" role="alert" style="border-left:4px solid #3B82F6;background:#EFF6FF;border-top:none;border-right:none;border-bottom:none;border-radius:6px;">
+    <i class="fas fa-info-circle mr-3 mt-1" style="color:#3B82F6;flex-shrink:0;"></i>
+    <div>
+        <strong style="color:#1e40af;">Instrucciones de uso:</strong>
+        <span style="color:#374151;"> Descarga la plantilla CSV correspondiente, completa los datos seg&uacute;n el formato y s&uacute;bela. Los campos con ID
+        (<code>ID_CATEGORIA</code>, <code>ID_MARCA</code>) deben existir previamente en el sistema.</span>
+    </div>
+</div>
+
+<!-- ======= 3 CARDS ROW ======= -->
+<div class="row mb-4">
+
+    <!-- ---- PRODUCTOS CARD ---- -->
+    <div class="col-lg-4 mb-3">
+        <div class="card h-100 shadow-sm" style="border-top:3px solid #3B82F6;">
+            <div class="card-header d-flex align-items-center" style="background:#F9FAFB;">
+                <div style="width:36px;height:36px;background:#DBEAFE;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="fas fa-box-open" style="color:#3B82F6;font-size:.85rem;"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="mb-0" style="font-weight:800;font-size:.9rem;color:#111827;">Productos</p>
+                    <p class="mb-0" style="font-size:.72rem;color:#9ca3af;">Carga masiva de productos del cat&aacute;logo</p>
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="mb-2" style="font-size:.78rem;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.06em;">Campos requeridos</p>
+                <div class="mb-3">
+                    <span class="badge badge-light mr-1 mb-1" style="font-size:.72rem;border:1px solid #E5E7EB;">NOMBRE</span>
+                    <span class="badge badge-light mr-1 mb-1" style="font-size:.72rem;border:1px solid #E5E7EB;">DESCRIPCION</span>
+                    <span class="badge badge-light mr-1 mb-1" style="font-size:.72rem;border:1px solid #E5E7EB;">PRECIO</span>
+                    <span class="badge badge-light mr-1 mb-1" style="font-size:.72rem;border:1px solid #E5E7EB;">STOCK</span>
+                    <span class="badge badge-warning mr-1 mb-1" style="font-size:.72rem;">ID_CATEGORIA</span>
+                    <span class="badge badge-warning mr-1 mb-1" style="font-size:.72rem;">ID_MARCA</span>
+                </div>
+                <a href="@Url.Action("DescargarPlantilla", "CargaMasiva", new { tipo = "productos" })"
+                   class="btn btn-outline-primary btn-sm btn-block mb-3">
+                    <i class="fas fa-download fa-sm mr-1"></i> Descargar plantilla
+                </a>
+                <div class="custom-file mb-2">
+                    <input type="file" class="custom-file-input" id="archivoProductos" accept=".csv">
+                    <label class="custom-file-label" for="archivoProductos" style="font-size:.8rem;">Seleccionar archivo CSV...</label>
+                </div>
+                <button type="button" class="btn btn-primary btn-sm btn-block mt-2" id="btnImportarProductos" onclick="importarCSV('productos')">
+                    <i class="fas fa-file-import fa-sm mr-1"></i> Importar Productos
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ---- CATEGORIAS CARD ---- -->
+    <div class="col-lg-4 mb-3">
+        <div class="card h-100 shadow-sm" style="border-top:3px solid #059669;">
+            <div class="card-header d-flex align-items-center" style="background:#F9FAFB;">
+                <div style="width:36px;height:36px;background:#D1FAE5;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="fas fa-tags" style="color:#059669;font-size:.85rem;"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="mb-0" style="font-weight:800;font-size:.9rem;color:#111827;">Categor&iacute;as</p>
+                    <p class="mb-0" style="font-size:.72rem;color:#9ca3af;">Carga masiva de categor&iacute;as del sistema</p>
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="mb-2" style="font-size:.78rem;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.06em;">Campos requeridos</p>
+                <div class="mb-3">
+                    <span class="badge badge-light mr-1 mb-1" style="font-size:.72rem;border:1px solid #E5E7EB;">NOMBRE</span>
+                    <span class="badge badge-light mr-1 mb-1" style="font-size:.72rem;border:1px solid #E5E7EB;">DESCRIPCION</span>
+                </div>
+                <a href="@Url.Action("DescargarPlantilla", "CargaMasiva", new { tipo = "categorias" })"
+                   class="btn btn-outline-success btn-sm btn-block mb-3">
+                    <i class="fas fa-download fa-sm mr-1"></i> Descargar plantilla
+                </a>
+                <div class="custom-file mb-2">
+                    <input type="file" class="custom-file-input" id="archivoCategorias" accept=".csv">
+                    <label class="custom-file-label" for="archivoCategorias" style="font-size:.8rem;">Seleccionar archivo CSV...</label>
+                </div>
+                <button type="button" class="btn btn-success btn-sm btn-block mt-2" id="btnImportarCategorias" onclick="importarCSV('categorias')">
+                    <i class="fas fa-file-import fa-sm mr-1"></i> Importar Categor&iacute;as
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ---- MARCAS CARD ---- -->
+    <div class="col-lg-4 mb-3">
+        <div class="card h-100 shadow-sm" style="border-top:3px solid #0284c7;">
+            <div class="card-header d-flex align-items-center" style="background:#F9FAFB;">
+                <div style="width:36px;height:36px;background:#E0F2FE;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="fas fa-bookmark" style="color:#0284c7;font-size:.85rem;"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="mb-0" style="font-weight:800;font-size:.9rem;color:#111827;">Marcas</p>
+                    <p class="mb-0" style="font-size:.72rem;color:#9ca3af;">Carga masiva de marcas del cat&aacute;logo</p>
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="mb-2" style="font-size:.78rem;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.06em;">Campos requeridos</p>
+                <div class="mb-3">
+                    <span class="badge badge-light mr-1 mb-1" style="font-size:.72rem;border:1px solid #E5E7EB;">NOMBRE</span>
+                    <span class="badge badge-light mr-1 mb-1" style="font-size:.72rem;border:1px solid #E5E7EB;">DESCRIPCION</span>
+                </div>
+                <a href="@Url.Action("DescargarPlantilla", "CargaMasiva", new { tipo = "marcas" })"
+                   class="btn btn-sm btn-block mb-3" style="border:1px solid #0284c7;color:#0284c7;background:transparent;">
+                    <i class="fas fa-download fa-sm mr-1"></i> Descargar plantilla
+                </a>
+                <div class="custom-file mb-2">
+                    <input type="file" class="custom-file-input" id="archivoMarcas" accept=".csv">
+                    <label class="custom-file-label" for="archivoMarcas" style="font-size:.8rem;">Seleccionar archivo CSV...</label>
+                </div>
+                <button type="button" class="btn btn-sm btn-block mt-2" id="btnImportarMarcas" onclick="importarCSV('marcas')"
+                        style="background:#0284c7;color:#fff;border:none;">
+                    <i class="fas fa-file-import fa-sm mr-1"></i> Importar Marcas
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ======= RESULT PANEL (initially hidden) ======= -->
+<div id="panelResultado" style="display:none;" class="mb-4">
+    <div id="alertaResultado" class="alert alert-dismissible fade show" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <div class="d-flex align-items-start">
+            <i id="iconoResultado" class="fas fa-check-circle mr-3 mt-1" style="font-size:1.1rem;flex-shrink:0;"></i>
+            <div class="flex-grow-1">
+                <strong id="tituloResultado">Resultado de la importaci&oacute;n</strong>
+                <p id="mensajeResultado" class="mb-1"></p>
+                <div id="statsResultado" class="mb-2"></div>
+                <div id="erroresDetalle" style="display:none;">
+                    <p class="mb-1" style="font-weight:700;font-size:.82rem;">Detalle de errores:</p>
+                    <ul id="listaErrores" class="mb-0 pl-3" style="font-size:.82rem;"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ======= HISTORIAL (client-side session) ======= -->
+<div class="card shadow-sm">
+    <div class="card-header d-flex align-items-center justify-content-between">
+        <span style="font-weight:700;font-size:.875rem;color:#374151;">
+            <i class="fas fa-history mr-2 text-primary"></i> Historial de importaciones (sesi&oacute;n actual)
+        </span>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="limpiarHistorial()" style="font-size:.75rem;">
+            <i class="fas fa-trash-alt fa-sm mr-1"></i> Limpiar
+        </button>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm table-hover mb-0" id="tablaHistorial">
+                <thead style="background:#F9FAFB;">
+                    <tr>
+                        <th style="font-size:.75rem;font-weight:700;color:#6B7280;padding:.6rem 1rem;">Hora</th>
+                        <th style="font-size:.75rem;font-weight:700;color:#6B7280;padding:.6rem 1rem;">Tipo</th>
+                        <th style="font-size:.75rem;font-weight:700;color:#6B7280;padding:.6rem 1rem;">Archivo</th>
+                        <th style="font-size:.75rem;font-weight:700;color:#6B7280;padding:.6rem 1rem;">Insertados</th>
+                        <th style="font-size:.75rem;font-weight:700;color:#6B7280;padding:.6rem 1rem;">Errores</th>
+                        <th style="font-size:.75rem;font-weight:700;color:#6B7280;padding:.6rem 1rem;">Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="historialBody">
+                    <tr id="filaSinDatos">
+                        <td colspan="6" class="text-center text-muted py-4" style="font-size:.82rem;">
+                            <i class="fas fa-inbox mr-1"></i> Sin importaciones en esta sesi&oacute;n.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+<script>
+    // ─── file input labels ───────────────────────────────────────────────
+    $(".custom-file-input").on("change", function () {
+        var fileName = $(this).val().split("\\").pop() || "Seleccionar archivo CSV...";
+        $(this).siblings(".custom-file-label").text(fileName);
+    });
+
+    // ─── session history array ────────────────────────────────────────────
+    var historial = [];
+
+    function limpiarHistorial() {
+        historial = [];
+        renderHistorial();
+    }
+
+    function renderHistorial() {
+        var tbody = $("#historialBody");
+        tbody.empty();
+
+        if (historial.length === 0) {
+            tbody.append(
+                '<tr id="filaSinDatos"><td colspan="6" class="text-center text-muted py-4" style="font-size:.82rem;">' +
+                '<i class="fas fa-inbox mr-1"></i> Sin importaciones en esta sesi&oacute;n.</td></tr>'
+            );
+            return;
+        }
+
+        historial.forEach(function (h) {
+            var badgeClass = h.exito ? "badge-success" : "badge-danger";
+            var estadoTxt  = h.exito ? "OK" : "Error";
+            var tipoLabel  = { productos: "Productos", categorias: "Categor&iacute;as", marcas: "Marcas" }[h.tipo] || h.tipo;
+            var tipoBadge  = { productos: "badge-primary", categorias: "badge-success", marcas: "badge-info" }[h.tipo] || "badge-secondary";
+
+            tbody.prepend(
+                '<tr>' +
+                '<td style="font-size:.8rem;color:#374151;padding:.55rem 1rem;">' + h.hora + '</td>' +
+                '<td style="padding:.55rem 1rem;"><span class="badge ' + tipoBadge + '" style="font-size:.72rem;">' + tipoLabel + '</span></td>' +
+                '<td style="font-size:.8rem;color:#374151;padding:.55rem 1rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + h.archivo + '">' + h.archivo + '</td>' +
+                '<td style="font-size:.8rem;font-weight:700;color:#059669;padding:.55rem 1rem;">' + h.insertados + '</td>' +
+                '<td style="font-size:.8rem;font-weight:700;color:' + (h.errores > 0 ? '#dc2626' : '#9ca3af') + ';padding:.55rem 1rem;">' + h.errores + '</td>' +
+                '<td style="padding:.55rem 1rem;"><span class="badge ' + badgeClass + '" style="font-size:.72rem;">' + estadoTxt + '</span></td>' +
+                '</tr>'
+            );
+        });
+    }
+
+    // ─── core import function ─────────────────────────────────────────────
+    function importarCSV(tipo) {
+        var inputId = { productos: "archivoProductos", categorias: "archivoCategorias", marcas: "archivoMarcas" }[tipo];
+        var btnId   = { productos: "btnImportarProductos", categorias: "btnImportarCategorias", marcas: "btnImportarMarcas" }[tipo];
+        var input   = document.getElementById(inputId);
+        var btn     = $("#" + btnId);
+
+        if (!input || !input.files || input.files.length === 0) {
+            mostrarResultado(false, "Selecciona un archivo CSV antes de importar.", 0, 0, []);
+            return;
+        }
+
+        var archivo = input.files[0];
+        var nombreArchivo = archivo.name;
+
+        // loading state
+        var textoOriginal = btn.html();
+        btn.html('<i class="fas fa-spinner fa-spin fa-sm mr-1"></i> Importando...').prop("disabled", true);
+
+        var formData = new FormData();
+        formData.append("archivo", archivo);
+        formData.append("tipo", tipo);
+
+        $.ajax({
+            url: '@Url.Action("ImportarCSV", "CargaMasiva")',
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                btn.html(textoOriginal).prop("disabled", false);
+
+                var exito = data.resultado;
+                var ins   = data.insertados || 0;
+                var err   = data.errores   || 0;
+                var dets  = data.detalleErrores || [];
+
+                mostrarResultado(exito, data.mensaje, ins, err, dets);
+
+                // Add to session history
+                var now = new Date();
+                var hora = now.toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+                historial.push({ hora: hora, tipo: tipo, archivo: nombreArchivo, insertados: ins, errores: err, exito: exito });
+                renderHistorial();
+
+                // Reset file input
+                input.value = "";
+                $("#" + inputId).siblings(".custom-file-label").text("Seleccionar archivo CSV...");
+            },
+            error: function (xhr) {
+                btn.html(textoOriginal).prop("disabled", false);
+                mostrarResultado(false, "Error de conexión al servidor. Código: " + xhr.status, 0, 0, []);
+            }
+        });
+    }
+
+    // ─── result panel renderer ────────────────────────────────────────────
+    function mostrarResultado(exito, mensaje, insertados, errores, detalleErrores) {
+        var panel  = $("#panelResultado");
+        var alerta = $("#alertaResultado");
+        var icono  = $("#iconoResultado");
+
+        // Scroll to panel
+        panel.show();
+        $("html, body").animate({ scrollTop: panel.offset().top - 80 }, 300);
+
+        if (exito) {
+            alerta.removeClass("alert-danger").addClass("alert-success");
+            icono.attr("class", "fas fa-check-circle mr-3 mt-1").css("color", "#059669");
+            $("#tituloResultado").text("Importación completada");
+        } else {
+            alerta.removeClass("alert-success").addClass("alert-danger");
+            icono.attr("class", "fas fa-times-circle mr-3 mt-1").css("color", "#dc2626");
+            $("#tituloResultado").text("Error en la importación");
+        }
+
+        $("#mensajeResultado").text(mensaje);
+
+        if (exito && (insertados > 0 || errores > 0)) {
+            $("#statsResultado").html(
+                '<span class="badge badge-success mr-2" style="font-size:.78rem;">' +
+                '<i class="fas fa-check mr-1"></i>' + insertados + ' insertados</span>' +
+                (errores > 0
+                    ? '<span class="badge badge-warning" style="font-size:.78rem;">' +
+                      '<i class="fas fa-exclamation-triangle mr-1"></i>' + errores + ' con errores</span>'
+                    : '')
+            );
+        } else {
+            $("#statsResultado").html("");
+        }
+
+        var listaErrores = $("#listaErrores");
+        listaErrores.empty();
+        if (detalleErrores && detalleErrores.length > 0) {
+            detalleErrores.forEach(function (e) {
+                listaErrores.append('<li>' + $("<span>").text(e).html() + '</li>');
+            });
+            $("#erroresDetalle").show();
+        } else {
+            $("#erroresDetalle").hide();
+        }
+    }
+</script>
+}
