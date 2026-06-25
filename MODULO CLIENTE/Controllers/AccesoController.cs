@@ -95,7 +95,10 @@ namespace MODULO_CLIENTE.Controllers
                 }
 
                 var clientes = await clienteService.ObtenerTodos();
-                CLIENTES cliente = clientes.FirstOrDefault(c => c.CORREO == correo && c.CLAVE == UtilService.EncriptarClave(clave));
+                var claveEncriptada = UtilService.EncriptarClave(clave);
+
+
+                CLIENTES cliente = clientes.FirstOrDefault(c => c.CORREO == correo && c.CLAVE == claveEncriptada);
 
                 if (cliente == null)
                 {

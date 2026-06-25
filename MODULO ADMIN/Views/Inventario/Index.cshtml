@@ -1,0 +1,448 @@
+@{
+    ViewBag.Title = "Inventario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Page Header -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <div>
+        <p class="small mb-0" style="color:#9ca3af;font-size:.78rem;">Administración &rsaquo; Inventario</p>
+        <h1 class="h3 mb-0" style="font-size:1.35rem;font-weight:800;color:#111827;letter-spacing:-.02em;">Inventario</h1>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="row mb-4" id="kpiRow">
+    <div class="col-xl-4 col-md-4 mb-3">
+        <div class="card border-left-primary shadow-sm h-100 py-2">
+            <div class="card-body py-2">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Productos</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="kpiTotal">—</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-boxes fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-md-4 mb-3">
+        <div class="card border-left-danger shadow-sm h-100 py-2">
+            <div class="card-body py-2">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Stock Cr&iacute;tico <span class="text-muted font-weight-normal" style="font-size:.7rem;">(≤ 5 uds)</span></div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="kpiCritico">—</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-md-4 mb-3">
+        <div class="card border-left-warning shadow-sm h-100 py-2">
+            <div class="card-body py-2">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Stock Bajo <span class="text-muted font-weight-normal" style="font-size:.7rem;">(6 – 15 uds)</span></div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="kpiBajo">—</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-arrow-down fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Inventory Table Card -->
+<div class="card shadow-sm">
+    <div class="card-header d-flex align-items-center justify-content-between flex-wrap" style="gap:.5rem;">
+        <span style="font-weight:700;font-size:.875rem;color:#374151;">
+            <i class="fas fa-warehouse mr-2 text-primary"></i> Control de Inventario
+        </span>
+        <!-- Stock filter -->
+        <div class="d-flex align-items-center" style="gap:.5rem;">
+            <label for="filtroStock" class="mb-0 small text-muted">Filtrar por:</label>
+            <select id="filtroStock" class="form-control form-control-sm" style="width:auto;min-width:150px;">
+                <option value="todos">Todos</option>
+                <option value="critico">Stock cr&iacute;tico (&le; 5)</option>
+                <option value="bajo">Stock bajo (6–15)</option>
+            </select>
+        </div>
+    </div>
+    <div class="card-body">
+        <table id="table_inventario" class="display cell-border" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Categor&iacute;a</th>
+                    <th>Marca</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Estado</th>
+                    <th style="width:120px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ====== Modal Ajustar Stock ====== -->
+<div class="modal fade" id="modalAjustarStock" tabindex="-1" aria-labelledby="modalAjustarLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAjustarLabel" style="font-size:1rem;font-weight:700;">
+                    <i class="fas fa-sliders-h mr-2 text-primary"></i> Ajustar Stock
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="ajusteIdProducto" />
+
+                <!-- Product summary -->
+                <div class="d-flex align-items-center mb-3 p-2 rounded" style="background:#F9FAFB;border:1px solid #E5E7EB;">
+                    <i class="fas fa-box fa-lg text-primary mr-3"></i>
+                    <div>
+                        <div class="font-weight-bold" id="ajusteNombreProducto" style="font-size:.95rem;color:#111827;"></div>
+                        <div class="small text-muted">Stock actual: <strong id="ajusteStockActual" class="text-dark"></strong> unidades</div>
+                    </div>
+                </div>
+
+                <!-- Tipo -->
+                <div class="form-group">
+                    <label class="form-label font-weight-600" style="font-size:.85rem;">Tipo de movimiento</label>
+                    <div class="d-flex" style="gap:.75rem;">
+                        <div class="flex-fill">
+                            <input type="radio" class="btn-check" name="radioTipo" id="radioEntrada" value="entrada" autocomplete="off" checked>
+                            <label class="btn btn-outline-primary btn-block" for="radioEntrada" id="lblEntrada"
+                                   style="font-size:.85rem;border-radius:.375rem;cursor:pointer;">
+                                <i class="fas fa-plus-circle mr-1"></i> Entrada
+                            </label>
+                        </div>
+                        <div class="flex-fill">
+                            <input type="radio" class="btn-check" name="radioTipo" id="radioSalida" value="salida" autocomplete="off">
+                            <label class="btn btn-outline-secondary btn-block" for="radioSalida" id="lblSalida"
+                                   style="font-size:.85rem;border-radius:.375rem;cursor:pointer;">
+                                <i class="fas fa-minus-circle mr-1"></i> Salida
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cantidad -->
+                <div class="form-group mb-1">
+                    <label for="ajusteCantidad" class="form-label font-weight-600" style="font-size:.85rem;">Cantidad</label>
+                    <input type="number" class="form-control" id="ajusteCantidad" min="1" value="1" placeholder="Ingrese la cantidad">
+                </div>
+
+                <!-- Error -->
+                <div id="ajusteError" class="alert alert-danger mt-2" style="display:none;font-size:.83rem;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary btn-sm" id="btnConfirmarAjuste">
+                    <i class="fas fa-check mr-1"></i> Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+<style>
+    /* Radio-button toggle styling (Bootstrap 4 compatible) */
+    .btn-check { position:absolute;clip:rect(0,0,0,0);pointer-events:none; }
+    .btn-check:checked + .btn-outline-primary {
+        background:#3B82F6;color:#fff;border-color:#3B82F6;
+    }
+    .btn-check:checked + .btn-outline-secondary {
+        background:#6B7280;color:#fff;border-color:#6B7280;
+    }
+    #table_inventario tbody tr:hover { background:#F9FAFB; }
+</style>
+<script>
+
+    /* ─────────────────────────────────────────────
+       State
+    ───────────────────────────────────────────── */
+    var tablaInventario;
+    var inventarioData = [];   // full cached dataset
+
+    /* ─────────────────────────────────────────────
+       Helper: build stock badge HTML
+    ───────────────────────────────────────────── */
+    function stockBadge(val, alerta) {
+        var cls = alerta === 'critico' ? 'badge-danger'
+                : alerta === 'bajo'    ? 'badge-warning'
+                                       : 'badge-success';
+        return '<span class="badge ' + cls + '" style="font-size:.8rem;padding:.3em .7em;">'
+             + val + ' uds</span>';
+    }
+
+    /* ─────────────────────────────────────────────
+       KPI calculation
+    ───────────────────────────────────────────── */
+    function actualizarKpis(data) {
+        var total   = data.length;
+        var critico = data.filter(function(r){ return r.Alerta === 'critico'; }).length;
+        var bajo    = data.filter(function(r){ return r.Alerta === 'bajo'; }).length;
+        $('#kpiTotal').text(total);
+        $('#kpiCritico').text(critico);
+        $('#kpiBajo').text(bajo);
+    }
+
+    /* ─────────────────────────────────────────────
+       DataTable initialisation (client-side)
+    ───────────────────────────────────────────── */
+    $(document).ready(function () {
+
+        tablaInventario = $('#table_inventario').DataTable({
+            responsive: true,
+            ordering: true,
+            data: [],          // populated via AJAX below
+            columns: [
+                { data: 'NOMBRE' },
+                { data: 'Categoria' },
+                { data: 'Marca' },
+                {
+                    data: 'PRECIO',
+                    render: function (val) {
+                        return 'S/ ' + parseFloat(val).toFixed(2);
+                    }
+                },
+                {
+                    data: 'Stock',
+                    render: function (val, type, row) {
+                        if (type === 'sort' || type === 'type') return val;
+                        return stockBadge(val, row.Alerta);
+                    }
+                },
+                {
+                    data: 'Estado',
+                    render: function (val) {
+                        var cls = val === 'Activo' ? 'badge-success' : 'badge-secondary';
+                        return '<span class="badge ' + cls + '" style="font-size:.72rem;padding:.3em .65em;border-radius:50em;">' + val + '</span>';
+                    }
+                },
+                {
+                    data: 'ID_PRODUCTO',
+                    orderable: false,
+                    searchable: false,
+                    render: function (id, type, row) {
+                        return '<div class="btn-group btn-group-sm">'
+                             + '<button class="btn btn-outline-primary btn-entrada" '
+                             +   'data-id="' + row.ID_PRODUCTO + '" '
+                             +   'data-nombre="' + row.NOMBRE.replace(/"/g, '&quot;') + '" '
+                             +   'data-stock="' + row.Stock + '" '
+                             +   'data-tipo="entrada" title="Entrada de stock">'
+                             +   '<i class="fas fa-plus"></i>'
+                             + '</button>'
+                             + '<button class="btn btn-outline-secondary btn-salida" '
+                             +   'data-id="' + row.ID_PRODUCTO + '" '
+                             +   'data-nombre="' + row.NOMBRE.replace(/"/g, '&quot;') + '" '
+                             +   'data-stock="' + row.Stock + '" '
+                             +   'data-tipo="salida" title="Salida de stock">'
+                             +   '<i class="fas fa-minus"></i>'
+                             + '</button>'
+                             + '</div>';
+                    }
+                }
+            ],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/2.3.7/i18n/es-ES.json'
+            }
+        });
+
+        /* ── Load data ── */
+        cargarInventario();
+
+        /* ── Filter by stock status ── */
+        $('#filtroStock').on('change', function () {
+            var filtro = $(this).val();
+            aplicarFiltro(filtro);
+        });
+
+        /* ── Open modal on Entrada/Salida buttons ── */
+        $('#table_inventario tbody').on('click', '.btn-entrada, .btn-salida', function () {
+            var tipo   = $(this).data('tipo');
+            var id     = $(this).data('id');
+            var nombre = $(this).data('nombre');
+            var stock  = $(this).data('stock');
+            abrirModal(id, nombre, stock, tipo);
+        });
+
+        /* ── Radio toggle visual ── */
+        $('input[name="radioTipo"]').on('change', function () {
+            sincronizarRadios();
+        });
+
+        /* ── Confirm button ── */
+        $('#btnConfirmarAjuste').on('click', function () {
+            confirmarAjuste();
+        });
+    });
+
+    /* ─────────────────────────────────────────────
+       Load / reload inventory data
+    ───────────────────────────────────────────── */
+    function cargarInventario() {
+        $.ajax({
+            url: '@Url.Action("ListarInventario", "Inventario")',
+            type: 'GET',
+            dataType: 'json',
+            success: function (response) {
+                inventarioData = response.data;
+                actualizarKpis(inventarioData);
+                var filtro = $('#filtroStock').val() || 'todos';
+                aplicarFiltro(filtro);
+            },
+            error: function (err) {
+                console.error('Error al cargar inventario:', err);
+                swal('Error', 'No se pudo cargar el inventario.', 'error');
+            }
+        });
+    }
+
+    /* ─────────────────────────────────────────────
+       Apply client-side filter
+    ───────────────────────────────────────────── */
+    function aplicarFiltro(filtro) {
+        var filtrado;
+        if (filtro === 'critico') {
+            filtrado = inventarioData.filter(function (r) { return r.Alerta === 'critico'; });
+        } else if (filtro === 'bajo') {
+            filtrado = inventarioData.filter(function (r) { return r.Alerta === 'bajo'; });
+        } else {
+            filtrado = inventarioData;
+        }
+        tablaInventario.clear().rows.add(filtrado).draw();
+    }
+
+    /* ─────────────────────────────────────────────
+       Open adjust-stock modal
+    ───────────────────────────────────────────── */
+    function abrirModal(id, nombre, stock, tipo) {
+        $('#ajusteIdProducto').val(id);
+        $('#ajusteNombreProducto').text(nombre);
+        $('#ajusteStockActual').text(stock);
+        $('#ajusteCantidad').val(1);
+        $('#ajusteError').hide().text('');
+
+        // Pre-select tipo
+        if (tipo === 'salida') {
+            $('#radioSalida').prop('checked', true);
+        } else {
+            $('#radioEntrada').prop('checked', true);
+        }
+        sincronizarRadios();
+
+        $('#modalAjustarStock').modal('show');
+    }
+
+    /* ─────────────────────────────────────────────
+       Sync radio button labels
+    ───────────────────────────────────────────── */
+    function sincronizarRadios() {
+        var tipoActual = $('input[name="radioTipo"]:checked').val();
+        if (tipoActual === 'entrada') {
+            $('#lblEntrada').addClass('btn-outline-primary').removeClass('btn-outline-secondary')
+                           .css({'background':'#3B82F6','color':'#fff','border-color':'#3B82F6'});
+            $('#lblSalida').removeClass('btn-outline-primary').addClass('btn-outline-secondary')
+                           .css({'background':'','color':'','border-color':''});
+        } else {
+            $('#lblSalida').css({'background':'#6B7280','color':'#fff','border-color':'#6B7280'});
+            $('#lblEntrada').css({'background':'','color':'','border-color':''});
+        }
+    }
+
+    /* ─────────────────────────────────────────────
+       Confirm stock adjustment
+    ───────────────────────────────────────────── */
+    function confirmarAjuste() {
+        var idProducto = parseInt($('#ajusteIdProducto').val());
+        var cantidad   = parseInt($('#ajusteCantidad').val());
+        var tipo       = $('input[name="radioTipo"]:checked').val();
+
+        // Validation
+        if (isNaN(cantidad) || cantidad <= 0) {
+            $('#ajusteError').text('La cantidad debe ser un número mayor a 0.').show();
+            return;
+        }
+        $('#ajusteError').hide();
+
+        var nombreProducto = $('#ajusteNombreProducto').text();
+        var tipoLabel      = tipo === 'entrada' ? 'Entrada' : 'Salida';
+
+        swal({
+            title: '¿Confirmar ' + tipoLabel + '?',
+            text: tipoLabel + ' de ' + cantidad + ' unidad(es) para "' + nombreProducto + '".',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonClass: 'btn-primary',
+            confirmButtonText: 'Sí, confirmar',
+            cancelButtonText: 'Cancelar',
+            closeOnConfirm: false,
+            closeOnCancel: true
+        },
+        function (isConfirm) {
+            if (!isConfirm) return;
+
+            $.ajax({
+                url: '@Url.Action("AjustarStock", "Inventario")',
+                type: 'POST',
+                data: {
+                    idProducto: idProducto,
+                    cantidad: cantidad,
+                    tipo: tipo
+                },
+                dataType: 'json',
+                success: function (resp) {
+                    if (resp.resultado) {
+                        /* ── Update the in-memory dataset ── */
+                        var item = inventarioData.find(function (r) {
+                            return r.ID_PRODUCTO === idProducto;
+                        });
+                        if (item) {
+                            item.Stock  = resp.nuevoStock;
+                            item.Alerta = resp.nuevaAlerta;
+                        }
+
+                        /* ── Refresh KPIs ── */
+                        actualizarKpis(inventarioData);
+
+                        /* ── Re-render only the affected row (no full reload) ── */
+                        tablaInventario.rows(function (idx, data) {
+                            return data.ID_PRODUCTO === idProducto;
+                        }).every(function () {
+                            var rowData = this.data();
+                            rowData.Stock  = resp.nuevoStock;
+                            rowData.Alerta = resp.nuevaAlerta;
+                            this.data(rowData).draw(false);
+                        });
+
+                        $('#modalAjustarStock').modal('hide');
+                        swal('¡Listo!', resp.mensaje, 'success');
+                    } else {
+                        swal('Error', resp.mensaje, 'error');
+                    }
+                },
+                error: function (err) {
+                    console.error(err);
+                    swal('Error', 'No se pudo procesar la solicitud.', 'error');
+                }
+            });
+        });
+    }
+
+</script>
+}

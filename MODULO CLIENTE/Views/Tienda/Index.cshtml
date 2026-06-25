@@ -1,95 +1,648 @@
-﻿
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Tienda";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!-- Header-->
-<header class="py-5" style="background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://starkcloud.com/wp-content/uploads/2024/12/La-tecnologia-del-futuro-5-avances-que-cambiaran-el-mundo-2000x1200-1-1024x614.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; ">
-    <div class="container px-4 px-lg-5 my-5">
-        <div class="text-center text-white">
-            <h1 class="display-4 fw-bolder">Compra con estilo</h1>
-            <p class="lead fw-normal text-white-50 mb-0">Con las 3b como te gusta ñaño</p>
-        </div>
+<style>
+    /* ── PAGE HEADER ── */
+    .page-header {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 2rem 0 0;
+    }
+
+    .page-header-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+
+    .page-header h1 {
+        font-family: var(--font-h);
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--text);
+        letter-spacing: -0.03em;
+        margin-bottom: 0.25rem;
+    }
+
+    .page-header p {
+        font-size: 0.875rem;
+        color: var(--muted);
+        margin-bottom: 0;
+    }
+
+    /* ── TOOLBAR ── */
+    .filter-toolbar {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 60px;
+        z-index: 100;
+    }
+
+    .filter-toolbar-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0.625rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .toolbar-sep {
+        width: 1px;
+        height: 20px;
+        background: var(--border);
+        margin: 0 0.25rem;
+        flex-shrink: 0;
+    }
+
+    /* Filter pill buttons */
+    .filter-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        height: 36px;
+        min-width: 44px; /* a11y touch target */
+        padding: 0 0.875rem;
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: 100px;
+        font-family: var(--font-b);
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--text);
+        cursor: pointer;
+        transition: border-color 0.15s, background 0.15s, color 0.15s;
+        white-space: nowrap;
+        user-select: none;
+    }
+    .filter-btn:hover { border-color: var(--border-h); background: var(--surface-2); color: var(--text); }
+    .filter-btn.active {
+        border-color: var(--accent);
+        background: var(--accent-light);
+        color: var(--accent);
+    }
+
+    .filter-btn .chevron {
+        font-size: 0.6rem;
+        transition: transform 0.2s;
+        opacity: 0.5;
+    }
+    .filter-btn.show .chevron { transform: rotate(180deg); }
+
+    /* Dropdown panel */
+    .filter-panel {
+        min-width: 230px;
+        max-height: 320px;
+        overflow-y: auto;
+        padding: 0.5rem;
+        border: 1.5px solid var(--border);
+        border-radius: var(--r-lg);
+        box-shadow: var(--shadow-lg);
+        background: var(--surface);
+        margin-top: 0.375rem !important;
+    }
+    .filter-panel::-webkit-scrollbar { width: 4px; }
+    .filter-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .filter-search {
+        width: 100%;
+        font-family: var(--font-b);
+        font-size: 0.8125rem;
+        border: 1.5px solid var(--border);
+        border-radius: var(--r);
+        padding: 0.4rem 0.625rem;
+        margin-bottom: 0.375rem;
+        outline: none;
+        background: var(--surface);
+        color: var(--text);
+        transition: border-color 0.15s;
+    }
+    .filter-search:focus { border-color: var(--accent); }
+    .filter-search::placeholder { color: var(--subtle); }
+
+    .filter-option {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0.5rem;
+        border-radius: var(--r-sm);
+        cursor: pointer;
+        font-size: 0.8125rem;
+        font-family: var(--font-b);
+        color: var(--muted);
+        transition: background 0.1s, color 0.1s;
+        user-select: none;
+        min-height: 36px; /* a11y */
+    }
+    .filter-option input { display: none; }
+    .filter-option:hover { background: var(--surface-2); color: var(--text); }
+    .filter-option.active { color: var(--accent); font-weight: 600; }
+
+    .filter-radio {
+        width: 15px; height: 15px;
+        border: 1.5px solid var(--border);
+        border-radius: 50%;
+        flex-shrink: 0;
+        transition: all 0.12s;
+        position: relative;
+    }
+    .filter-option.active .filter-radio {
+        border-color: var(--accent);
+        background: var(--accent);
+    }
+    .filter-option.active .filter-radio::after {
+        content: '';
+        position: absolute;
+        inset: 3px;
+        background: #fff;
+        border-radius: 50%;
+    }
+
+    /* Active chips */
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        height: 28px;
+        padding: 0 0.6rem;
+        background: var(--accent-light);
+        border: 1.5px solid rgba(79,70,229,0.2);
+        border-radius: 100px;
+        color: var(--accent);
+        font-family: var(--font-b);
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.12s;
+    }
+    .chip:hover { background: #E0E7FF; }
+    .chip-x { font-size: 0.65rem; opacity: 0.7; }
+
+    .result-count {
+        margin-left: auto;
+        font-size: 0.8125rem;
+        font-family: var(--font-b);
+        color: var(--muted);
+        white-space: nowrap;
+    }
+    .result-count strong { color: var(--text); font-weight: 600; }
+
+    /* ── PRODUCT GRID ── */
+    .products-wrap {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 1.75rem 1.5rem 4rem;
+    }
+
+    /* ── PRODUCT CARD ── */
+    .p-card {
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: var(--r-lg);
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        cursor: pointer;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    /* La firma visual: hover = borde indigo + glow sutil */
+    .p-card:hover {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-dim), var(--shadow);
+    }
+
+    /* Imagen container */
+    .p-card-img-wrap {
+        position: relative;
+        overflow: hidden;
+        background: var(--surface-2);
+        flex-shrink: 0;
+    }
+
+    .p-card-img {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.35s ease;
+    }
+    .p-card:hover .p-card-img { transform: scale(1.04); }
+
+    /* Overlay CTA — sube desde abajo al hover */
+    .p-card-cta {
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        background: var(--accent);
+        padding: 0.625rem;
+        display: flex;
+        gap: 0.375rem;
+        transform: translateY(100%);
+        transition: transform 0.22s ease;
+    }
+    .p-card:hover .p-card-cta { transform: translateY(0); }
+
+    .btn-cta {
+        flex: 1;
+        height: 36px;
+        min-width: 44px;
+        border-radius: var(--r-sm);
+        font-family: var(--font-b);
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        border: none;
+        text-decoration: none;
+        transition: opacity 0.15s;
+    }
+    .btn-cta-white { background: #fff; color: var(--accent); }
+    .btn-cta-white:hover { opacity: 0.9; color: var(--accent); }
+    .btn-cta-outline { background: rgba(255,255,255,0.15); color: #fff; }
+    .btn-cta-outline:hover { background: rgba(255,255,255,0.25); }
+
+    /* Detalles debajo de imagen */
+    .p-card-body {
+        padding: 0.875rem 1rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .p-card-brand {
+        font-family: var(--font-b);
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--subtle);
+        margin-bottom: 0.2rem;
+    }
+
+    .p-card-name {
+        font-family: var(--font-h);
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--text);
+        line-height: 1.3;
+        flex: 1;
+        /* Limitar a 2 líneas */
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .p-card-price {
+        font-family: var(--font-h);
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-top: 0.5rem;
+        letter-spacing: -0.02em;
+    }
+
+    /* ── SKELETON LOADERS ── */
+    @@keyframes shimmer {
+        0%   { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    .sk-base {
+        background: linear-gradient(90deg, #F1F1F3 25%, #E8E8EC 50%, #F1F1F3 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 4px;
+    }
+
+    .sk-card {
+        background: var(--surface);
+        border: 1.5px solid var(--border);
+        border-radius: var(--r-lg);
+        overflow: hidden;
+    }
+
+    .sk-img { aspect-ratio: 4/3; }
+    .sk-body { padding: 0.875rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .sk-line { height: 11px; }
+
+    /* ── ESTADOS ── */
+    .state-box {
+        padding: 4rem 1rem;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.875rem;
+        font-family: var(--font-b);
+    }
+    .state-box i {
+        display: block;
+        font-size: 2.25rem;
+        color: var(--border);
+        margin-bottom: 0.875rem;
+    }
+    .state-box p { color: var(--muted); }
+    .state-box.is-error i { color: #FCA5A5; }
+    .state-box.is-error p { color: #DC2626; }
+</style>
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-inner pb-4">
+        <h1>Tienda</h1>
+        <p>Tecnolog&iacute;a y accesorios seleccionados</p>
     </div>
-</header>
-<!-- Section-->
-<section>
-    <div class="container px-5 my-5">
-        <div class="row">
+</div>
 
-            <div class="col-sm-3">
-                <div class="row mb-3">
-                    <div class="col-sm-12">
-                        <div class="card">
-                            <div class="card-header bg-dark text-white">Categorias</div>
-                            <div class="card-body" id="contenedor_categorias"></div>
-                        </div>
-                    </div>
-                </div>
+<!-- Filter Toolbar -->
+<div class="filter-toolbar">
+    <div class="filter-toolbar-inner">
 
-                <div class="row mb-3">
-                    <div class="col-sm-12">
-                        <div class="card">
-                            <div class="card-header bg-dark text-white">Marcas</div>
-                            <div class="card-body" id="contenedor_marcas"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-sm-12">
-                        <div class="d-grid gap-2">
-                            <button id="btnAplicarFiltro" class="btn btn-outline-dark btn-block" type="button">
-                                <i class="fas fa-filter"></i>Aplicar filtro
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div> <div class="col-sm-9">
-                <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
-
-                    <div class="col mb-5">
-                        <div class="card h-100">
-                            <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="..." />
-                            <div class="card-body p-4">
-                                <div class="text-center">
-                                    <h5 class="fw-bolder">Fancy Product</h5>
-                                    $40.00 - $80.00
-                                </div>
-                            </div>
-                            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                                <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="#">View options</a></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col mb-5">
-                        <div class="card h-100">
-                            <div class="badge bg-dark text-white position-absolute" style="top: 0.5rem; right: 0.5rem">Sale</div>
-                            <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="..." />
-                            <div class="card-body p-4">
-                                <div class="text-center">
-                                    <h5 class="fw-bolder">Special Item</h5>
-                                    <div class="d-flex justify-content-center small text-warning mb-2">
-                                        <div class="bi-star-fill"></div>
-                                        <div class="bi-star-fill"></div>
-                                        <div class="bi-star-fill"></div>
-                                        <div class="bi-star-fill"></div>
-                                        <div class="bi-star-fill"></div>
-                                    </div>
-                                    <span class="text-muted text-decoration-line-through">$20.00</span>
-                                    $18.00
-                                </div>
-                            </div>
-                            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                                <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="#">Add to cart</a></div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
+        <!-- Dropdown Categoria -->
+        <div class="dropdown">
+            <button class="filter-btn" id="btnCat" data-bs-toggle="dropdown"
+                    data-bs-auto-close="outside" aria-expanded="false" aria-label="Filtrar por categoria">
+                <i class="fas fa-tag" style="font-size:0.65rem;color:var(--muted)"></i>
+                <span id="lblCat">Categoria</span>
+                <i class="fas fa-chevron-down chevron"></i>
+            </button>
+            <div class="dropdown-menu filter-panel" id="panelCat">
+                <input class="filter-search" type="text" id="searchCat" placeholder="Buscar categoria...">
+                <div id="optsCat"></div>
             </div>
         </div>
+
+        <!-- Dropdown Marca -->
+        <div class="dropdown">
+            <button class="filter-btn" id="btnMarca" data-bs-toggle="dropdown"
+                    data-bs-auto-close="outside" aria-expanded="false" aria-label="Filtrar por marca">
+                <i class="fas fa-layer-group" style="font-size:0.65rem;color:var(--muted)"></i>
+                <span id="lblMarca">Marca</span>
+                <i class="fas fa-chevron-down chevron"></i>
+            </button>
+            <div class="dropdown-menu filter-panel" id="panelMarca">
+                <input class="filter-search" type="text" id="searchMarca" placeholder="Buscar marca...">
+                <div id="optsMarca"></div>
+            </div>
+        </div>
+
+        <!-- Chips de filtros activos -->
+        <div id="activeChips" class="d-flex gap-1 flex-wrap align-items-center"></div>
+
+        <!-- Contador de resultados -->
+        <div class="result-count" id="resultCount"></div>
     </div>
-</section>
+</div>
+
+<!-- Products -->
+<div class="products-wrap">
+    <div id="contenedor_producto" class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3"></div>
+</div>
+
+@section scripts {
+<script>
+    // ── URLs (no hay unicode en estas cadenas) ──
+    var URL_IMG      = "@Url.Action("ObtenerImagen",           "Tienda")";
+    var URL_DETALLE  = "@Url.Action("DetalleProducto",          "Tienda")";
+    var URL_CATS     = "@Url.Action("ListaCategorias",          "Tienda")";
+    var URL_MARCAS   = "@Url.Action("ListarMarcaPorCategorias", "Tienda")";
+    var URL_PRODS    = "@Url.Action("ListarProductos",          "Tienda")";
+
+    var filtro = { cat: { id: 0, nombre: "" }, marca: { id: 0, nombre: "" } };
+
+    $(function () {
+        cargarCategorias();
+        cargarMarcas(0);
+        cargarProductos();
+    });
+
+    /* ── Helpers AJAX ── */
+    function apiGet(url, ok, err) {
+        $.ajax({ url: url, type: "GET", dataType: "json" })
+            .done(ok).fail(err || noop);
+    }
+
+    function apiPost(url, data, ok, err) {
+        // MVC5 bind primitivos desde form-data, NO desde JSON body
+        $.ajax({ url: url, type: "POST", data: data, dataType: "json" })
+            .done(ok).fail(err || noop);
+    }
+
+    function parseList(r) {
+        if (!r) return [];
+        return Array.isArray(r) ? r : (Array.isArray(r.data) ? r.data : []);
+    }
+
+    function noop() {}
+
+    /* ── Opciones de filtro ── */
+    function mkOpt(container, name, val, label, active) {
+        var $opt = $("<label>")
+            .addClass("filter-option" + (active ? " active" : ""))
+            .attr("for", name + "_" + val)
+            .append(
+                $("<input>").attr({ type: "radio", name: name, value: val, id: name + "_" + val }),
+                $("<span>").addClass("filter-radio"),
+                $("<span>").text(label)
+            );
+        $(container).append($opt);
+    }
+
+    /* ── Categorias ── */
+    function cargarCategorias() {
+        apiGet(URL_CATS, function (r) {
+            var list = parseList(r);
+            var $c = $("#optsCat").empty();
+            mkOpt($c, "cat", 0, "Todas las categorias", true);
+            $.each(list, function (_, el) { mkOpt($c, "cat", el.ID_CATEGORIA, el.NOMBRE, false); });
+        });
+    }
+
+    /* ── Marcas ── */
+    function cargarMarcas(idCat) {
+        apiPost(URL_MARCAS, { idCategoria: idCat }, function (r) {
+            var list = parseList(r);
+            var $m = $("#optsMarca").empty();
+            mkOpt($m, "marca", 0, "Todas las marcas", true);
+            $.each(list, function (_, el) { mkOpt($m, "marca", el.ID_MARCA, el.NOMBRE, false); });
+            // Mostrar conteo en boton
+            var cnt = list.length ? " (" + list.length + ")" : "";
+            $("#lblMarca").text("Marca" + cnt);
+        }, function () {
+            $("#optsMarca").html("<div style='padding:0.5rem;color:#DC2626;font-size:0.8rem'><i class='fas fa-exclamation-circle me-1'></i>Error al cargar marcas</div>");
+        });
+    }
+
+    /* ── Skeletons ── */
+    function mostrarSkeletons() {
+        var html = "";
+        for (var i = 0; i < 8; i++) {
+            html += '<div class="col"><div class="sk-card">' +
+                    '<div class="sk-img sk-base"></div>' +
+                    '<div class="sk-body">' +
+                    '<div class="sk-line sk-base" style="width:40%"></div>' +
+                    '<div class="sk-line sk-base" style="width:85%"></div>' +
+                    '<div class="sk-line sk-base" style="width:60%"></div>' +
+                    '<div class="sk-line sk-base" style="width:45%;height:14px;margin-top:4px"></div>' +
+                    '</div></div></div>';
+        }
+        $("#contenedor_producto").html(html);
+    }
+
+    /* ── Productos ── */
+    function cargarProductos() {
+        mostrarSkeletons();
+        apiPost(URL_PRODS, { idCategoria: filtro.cat.id, idMarca: filtro.marca.id }, function (r) {
+            var list = parseList(r);
+            var $grid = $("#contenedor_producto").empty();
+
+            $("#resultCount").html(list.length
+                ? "<strong>" + list.length + "</strong> productos"
+                : "");
+
+            if (list.length === 0) {
+                $grid.html('<div class="col-12"><div class="state-box">' +
+                    '<i class="fas fa-box-open"></i><p>Sin productos para estos filtros.</p></div></div>');
+                return;
+            }
+
+            $.each(list, function (idx, el) {
+                var precio = parseFloat(el.PRECIO || 0).toFixed(2);
+                var img = (el.NOMBRE_IMAGEN && el.NOMBRE_IMAGEN.trim())
+                    ? URL_IMG + "?nombreImagen=" + encodeURIComponent(el.NOMBRE_IMAGEN)
+                    : "https://dummyimage.com/600x450/F4F4F5/A1A1AA.jpg&text=Sin+imagen";
+
+                var $cta = $("<div>").addClass("p-card-cta").append(
+                    $("<button>").addClass("btn-cta btn-cta-white")
+                        .attr({ type: "button", "data-idproducto": el.ID_PRODUCTO })
+                        .html('<i class="fas fa-cart-plus"></i> Agregar'),
+                    $("<a>").addClass("btn-cta btn-cta-outline")
+                        .attr("href", URL_DETALLE + "?idProducto=" + el.ID_PRODUCTO)
+                        .html('<i class="fas fa-eye"></i>')
+                );
+
+                var $card = $("<div>").addClass("p-card").append(
+                    $("<div>").addClass("p-card-img-wrap").append(
+                        $("<img>").addClass("p-card-img")
+                            .attr({ src: img, alt: el.NOMBRE || "", loading: "lazy" })
+                            .on("error", function () {
+                                this.src = "https://dummyimage.com/600x450/F4F4F5/A1A1AA.jpg&text=Sin+imagen";
+                            }),
+                        $cta
+                    ),
+                    $("<div>").addClass("p-card-body").append(
+                        $("<div>").addClass("p-card-brand").text(el.MARCA || ""),
+                        $("<div>").addClass("p-card-name").text(el.NOMBRE || ""),
+                        $("<div>").addClass("p-card-price").text("$" + precio)
+                    )
+                );
+
+                $grid.append($("<div>").addClass("col").append($card));
+            });
+        }, function () {
+            $("#contenedor_producto").html('<div class="col-12"><div class="state-box is-error">' +
+                '<i class="fas fa-exclamation-circle"></i>' +
+                '<p>Error de conexi&oacute;n. Recarga la p&aacute;gina.</p></div></div>');
+        });
+    }
+
+    /* ── Chips activos ── */
+    function syncChips() {
+        var $chips = $("#activeChips").empty();
+
+        if (filtro.cat.id !== 0) {
+            $("#btnCat").addClass("active");
+            $chips.append(
+                $("<span>").addClass("chip")
+                    .html(filtro.cat.nombre + ' <span class="chip-x">&times;</span>')
+                    .on("click", resetCat)
+            );
+        } else {
+            $("#btnCat").removeClass("active");
+        }
+
+        if (filtro.marca.id !== 0) {
+            $("#btnMarca").addClass("active");
+            $chips.append(
+                $("<span>").addClass("chip")
+                    .html(filtro.marca.nombre + ' <span class="chip-x">&times;</span>')
+                    .on("click", resetMarca)
+            );
+        } else {
+            $("#btnMarca").removeClass("active");
+        }
+    }
+
+    function resetCat() {
+        filtro.cat = { id: 0, nombre: "" };
+        filtro.marca = { id: 0, nombre: "" };
+        $("#optsCat .filter-option").removeClass("active");
+        $("#optsCat .filter-option:first").addClass("active");
+        $("#lblCat").text("Categoria");
+        cargarMarcas(0);
+        syncChips();
+        cargarProductos();
+    }
+
+    function resetMarca() {
+        filtro.marca = { id: 0, nombre: "" };
+        $("#optsMarca .filter-option").removeClass("active");
+        $("#optsMarca .filter-option:first").addClass("active");
+        syncChips();
+        cargarProductos();
+    }
+
+    /* ── Eventos seleccion de filtro ── */
+    $(document).on("change", "#optsCat input", function () {
+        var val   = parseInt($(this).val(), 10) || 0;
+        var label = $(this).closest(".filter-option").find("span:last").text();
+        $("#optsCat .filter-option").removeClass("active");
+        $(this).closest(".filter-option").addClass("active");
+        filtro.cat   = { id: val, nombre: val ? label : "" };
+        filtro.marca = { id: 0, nombre: "" };
+        $("#lblCat").text(val ? label : "Categoria");
+        cargarMarcas(val);
+        syncChips();
+        cargarProductos();
+        cerrarDropdown("panelCat", "btnCat");
+    });
+
+    $(document).on("change", "#optsMarca input", function () {
+        var val   = parseInt($(this).val(), 10) || 0;
+        var label = $(this).closest(".filter-option").find("span:last").text();
+        $("#optsMarca .filter-option").removeClass("active");
+        $(this).closest(".filter-option").addClass("active");
+        filtro.marca = { id: val, nombre: val ? label : "" };
+        syncChips();
+        cargarProductos();
+        cerrarDropdown("panelMarca", "btnMarca");
+    });
+
+    function cerrarDropdown(panelId, btnId) {
+        $("#" + panelId + ", #" + btnId).removeClass("show");
+        $("#" + btnId).attr("aria-expanded", "false");
+    }
+
+    /* ── Busqueda dentro de dropdowns ── */
+    $("#searchCat").on("input", function () {
+        var q = $(this).val().toLowerCase();
+        $("#optsCat .filter-option").each(function () {
+            $(this).toggle($(this).find("span:last").text().toLowerCase().indexOf(q) >= 0);
+        });
+    });
+
+    $("#searchMarca").on("input", function () {
+        var q = $(this).val().toLowerCase();
+        $("#optsMarca .filter-option").each(function () {
+            $(this).toggle($(this).find("span:last").text().toLowerCase().indexOf(q) >= 0);
+        });
+    });
+</script>
+}

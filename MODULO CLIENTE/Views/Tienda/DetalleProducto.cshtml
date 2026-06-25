@@ -1,0 +1,281 @@
+@model ENTIDADES.PRODUCTOS
+
+@{
+    ViewBag.Title = Model != null ? Model.NOMBRE : "Detalle del Producto";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .detalle-root {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem 5rem;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        font-family: var(--font-b);
+        font-size: 0.8125rem;
+        color: var(--muted);
+        margin-bottom: 2rem;
+    }
+    .breadcrumb-nav a {
+        color: var(--muted);
+        text-decoration: none;
+        transition: color 0.12s;
+        cursor: pointer;
+    }
+    .breadcrumb-nav a:hover { color: var(--accent); }
+    .breadcrumb-sep { color: var(--border); }
+
+    /* Layout 2 columnas */
+    .detalle-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3.5rem;
+        align-items: start;
+    }
+
+    /* Imagen */
+    .img-frame {
+        border: 1.5px solid var(--border);
+        border-radius: var(--r-lg);
+        overflow: hidden;
+        background: var(--surface-2);
+        aspect-ratio: 4/3;
+        position: relative;
+    }
+    .img-frame img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.4s ease;
+    }
+    .img-frame:hover img { transform: scale(1.03); }
+
+    /* Info */
+    .info-col { display: flex; flex-direction: column; gap: 0; }
+
+    .info-brand {
+        font-family: var(--font-b);
+        font-size: 0.6875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--accent);
+        margin-bottom: 0.625rem;
+    }
+
+    .info-name {
+        font-family: var(--font-h);
+        font-size: clamp(1.5rem, 2.5vw, 2rem);
+        font-weight: 800;
+        color: var(--text);
+        line-height: 1.15;
+        letter-spacing: -0.03em;
+        margin-bottom: 1.25rem;
+    }
+
+    .info-price-block {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+        padding: 1rem;
+        background: var(--surface-2);
+        border-radius: var(--r);
+        margin-bottom: 1.25rem;
+    }
+    .info-price {
+        font-family: var(--font-h);
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--text);
+        letter-spacing: -0.03em;
+    }
+    .info-currency {
+        font-family: var(--font-b);
+        font-size: 0.875rem;
+        color: var(--muted);
+        font-weight: 500;
+    }
+
+    .info-divider {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 0 0 1.25rem;
+    }
+
+    .info-desc {
+        font-family: var(--font-b);
+        font-size: 0.9375rem;
+        line-height: 1.7;
+        color: var(--muted);
+        margin-bottom: 1.75rem;
+    }
+
+    /* Botones CTA */
+    .cta-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.625rem;
+    }
+
+    .btn-det {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        min-height: 48px; /* a11y touch target */
+        border-radius: var(--r);
+        font-family: var(--font-b);
+        font-weight: 600;
+        font-size: 0.9375rem;
+        cursor: pointer;
+        text-decoration: none;
+        border: 1.5px solid transparent;
+        transition: all 0.15s ease;
+    }
+    .btn-det-primary {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+    }
+    .btn-det-primary:hover {
+        background: var(--accent-h);
+        border-color: var(--accent-h);
+        color: #fff;
+        box-shadow: 0 4px 16px rgba(79,70,229,0.3);
+    }
+    .btn-det-ghost {
+        background: transparent;
+        color: var(--muted);
+        border-color: var(--border);
+    }
+    .btn-det-ghost:hover {
+        border-color: var(--border-h);
+        color: var(--text);
+        background: var(--surface-2);
+    }
+
+    /* Trust badges */
+    .trust-row {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--border);
+        margin-top: 1.5rem;
+    }
+    .trust-item {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        font-family: var(--font-b);
+        font-size: 0.75rem;
+        color: var(--muted);
+    }
+    .trust-item i { color: var(--green); }
+
+    @@media (max-width: 767px) {
+        .detalle-grid { grid-template-columns: 1fr; gap: 1.75rem; }
+        .info-name { font-size: 1.5rem; }
+    }
+</style>
+
+<div class="detalle-root">
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb-nav" aria-label="Breadcrumb">
+        <a href="@Url.Action("Index","Tienda")">
+            <i class="fas fa-store"></i> Tienda
+        </a>
+        <span class="breadcrumb-sep">/</span>
+        <span>@(Model?.NOMBRE ?? "Producto")</span>
+    </nav>
+
+    @if (Model == null)
+    {
+        <div style="text-align:center;padding:4rem 1rem">
+            <i class="fas fa-box-open" style="font-size:2.5rem;color:var(--border);display:block;margin-bottom:1rem"></i>
+            <p style="color:var(--muted);font-size:0.9rem;margin-bottom:1.5rem">Producto no encontrado.</p>
+            <a class="btn-det btn-det-ghost" style="width:auto;display:inline-flex;padding:0 1.5rem"
+               href="@Url.Action("Index","Tienda")">
+                <i class="fas fa-arrow-left"></i> Volver a la tienda
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="detalle-grid">
+
+            <!-- Imagen -->
+            <div class="img-frame">
+                <img src="@Url.Action("ObtenerImagen","Tienda")?nombreImagen=@Model.NOMBRE_IMAGEN"
+                     alt="@Html.AttributeEncode(Model.NOMBRE)"
+                     loading="lazy"
+                     onerror="this.src='https://dummyimage.com/600x450/F4F4F5/A1A1AA.jpg&text=Sin+imagen'" />
+            </div>
+
+            <!-- Info -->
+            <div class="info-col">
+
+                @if (Model.MARCAS != null && !string.IsNullOrEmpty(Model.MARCAS.DESCRIPCION))
+                {
+                    <div class="info-brand">@Model.MARCAS.DESCRIPCION</div>
+                }
+
+                <h1 class="info-name">@Model.NOMBRE</h1>
+
+                <div class="info-price-block">
+                    <span class="info-price">$@Model.PRECIO.ToString("0.00")</span>
+                    <span class="info-currency">USD</span>
+                </div>
+
+                <hr class="info-divider" />
+
+                @if (!string.IsNullOrEmpty(Model.DESCRIPCION))
+                {
+                    <p class="info-desc">@Model.DESCRIPCION</p>
+                }
+
+                <div class="cta-group">
+                    @if (Session["Cliente"] != null)
+                    {
+                        <button class="btn-det btn-det-primary agregarcarrito"
+                                type="button"
+                                data-idproducto="@Model.ID_PRODUCTO">
+                            <i class="fas fa-cart-plus"></i> Agregar al carrito
+                        </button>
+                    }
+                    <button class="btn-det btn-det-ghost" type="button"
+                            onclick="window.location.href='@Url.Action("Index","Tienda")'">
+                        <i class="fas fa-arrow-left"></i> Volver a la tienda
+                    </button>
+                </div>
+
+                <!-- Trust badges -->
+                <div class="trust-row">
+                    <div class="trust-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Compra segura</span>
+                    </div>
+                    <div class="trust-item">
+                        <i class="fas fa-undo"></i>
+                        <span>Devoluciones</span>
+                    </div>
+                    <div class="trust-item">
+                        <i class="fas fa-truck"></i>
+                        <span>Env&iacute;o r&aacute;pido</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    }
+
+</div>

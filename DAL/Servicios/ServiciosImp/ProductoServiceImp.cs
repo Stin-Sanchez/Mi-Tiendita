@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ENTIDADES;
 using ENTIDADES.Repository;
+using System.Web; 
 
 namespace DAL.Servicios
 {
@@ -120,8 +121,33 @@ namespace DAL.Servicios
         /// </summary>
         public async Task <IEnumerable<PRODUCTOS>> ObtenerTodos()
         {
-            return (await _repository.ObtenerTodos()).Where(p => p.ACTIVO ==true);
-           
+            var productos = await _repository.ObtenerTodos();
+
+            // Normalizamos la ruta de imagen aquí para que el cliente reciba algo servible
+            var lista = productos
+                .Where(p => p.ACTIVO == true)
+                .Select(p =>
+                {
+                    // Si no viene ruta, asumimos la carpeta pública por defecto
+                    var baseVirtual = string.IsNullOrWhiteSpace(p.RUTA_IMAGEN)
+                        ? "~/Img/Productos/"
+                        : (p.RUTA_IMAGEN.StartsWith("~") ? p.RUTA_IMAGEN : "~/" + p.RUTA_IMAGEN.TrimStart('/'));
+
+                    var nombreArchivo = string.IsNullOrWhiteSpace(p.NOMBRE_IMAGEN)
+                        ? string.Empty
+                        : p.NOMBRE_IMAGEN.TrimStart('/', '\\');
+
+                    // Guardamos en RUTA_IMAGEN la URL absoluta relativa a la app, para que el front no tenga que componerla
+                    p.RUTA_IMAGEN = string.IsNullOrWhiteSpace(nombreArchivo)
+                        ? string.Empty
+                        : VirtualPathUtility.ToAbsolute(baseVirtual.TrimEnd('/', '\\') + "/" + nombreArchivo);
+
+                    return p;
+                })
+                .ToList();
+
+            return lista;
+
         }
 
         public async Task<int> ObtenerTotalProductos()

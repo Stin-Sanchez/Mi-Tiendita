@@ -58,7 +58,7 @@ namespace DAL.Servicios
                     EnableSsl = true
                 };
 
-                // AQUÍ ESTÁ LA MAGIA: Usamos await y SendMailAsync
+                //Usamos await y SendMailAsync
                 await smtp.SendMailAsync(mail);
                 resultado = true;
             }
