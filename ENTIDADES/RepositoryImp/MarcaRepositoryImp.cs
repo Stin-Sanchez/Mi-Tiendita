@@ -23,13 +23,9 @@ namespace ENTIDADES.RepositoryImp
                           join m in _context.MARCAS on p.ID_MARCA equals m.ID_MARCA
                           where m.ACTIVO == true &&
                                 (idCategoria == 0 || c.ID_CATEGORIA == idCategoria)
-                          select new MARCAS
-                          {
-                              ID_MARCA = m.ID_MARCA,
-                              DESCRIPCION = m.DESCRIPCION
-                          }).Distinct();
+                          select m).Distinct();
 
-            return  await marcas.ToListAsync();
+            return await marcas.ToListAsync();
         }
     }
 }

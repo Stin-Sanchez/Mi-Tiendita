@@ -2,12 +2,51 @@ using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using ENTIDADES;
 
 namespace DAO
 {
+    public class ModelInitializer : CreateDatabaseIfNotExists<ModelContext>
+    {
+        protected override void Seed(ModelContext context)
+        {
+            if (!context.USUARIOS.Any())
+            {
+                context.USUARIOS.Add(new USUARIOS
+                {
+                    NOMBRE = "Admin",
+                    APELLIDO = "Sistema",
+                    CORREO = "admin@admin.com",
+                    CLAVE = Hash("admin123"),
+                    ACTIVO = true,
+                    RESTABLECER = false,
+                    FECHA_CREACION = DateTime.Now
+                });
+                context.SaveChanges();
+            }
+        }
+
+        private static string Hash(string texto)
+        {
+            using (var sha = SHA256.Create())
+            {
+                var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(texto));
+                var sb = new StringBuilder();
+                foreach (var b in bytes) sb.Append(b.ToString("x2"));
+                return sb.ToString();
+            }
+        }
+    }
+
     public partial class ModelContext : DbContext
     {
+        static ModelContext()
+        {
+            Database.SetInitializer(new System.Data.Entity.MigrateDatabaseToLatestVersion<ModelContext, ENTIDADES.Migrations.Configuration>());
+        }
+
         public ModelContext()
             : base("name=ModelContext")
         {
@@ -19,7 +58,6 @@ namespace DAO
         public virtual DbSet<DETALLE_VENTAS> DETALLE_VENTAS { get; set; }
         public virtual DbSet<MARCAS> MARCAS { get; set; }
         public virtual DbSet<PRODUCTOS> PRODUCTOS { get; set; }
-        public virtual DbSet<sysdiagrams> sysdiagrams { get; set; }
         public virtual DbSet<USUARIOS> USUARIOS { get; set; }
         public virtual DbSet<VENTAS> VENTAS { get; set; }
         public virtual DbSet<DEPARTAMENTO> DEPARTAMENTO { get; set; }

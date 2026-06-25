@@ -1,0 +1,194 @@
+@{
+    ViewBag.Title = "Clientes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <div>
+        <p class="small mb-0" style="color:#9ca3af;font-size:.78rem;">Administraci&oacute;n &rsaquo; Clientes</p>
+        <h1 class="h3 mb-0" style="font-size:1.35rem;font-weight:800;color:#111827;letter-spacing:-.02em;">Clientes</h1>
+        <p class="small mb-0 mt-1" style="color:#9ca3af;font-size:.75rem;font-style:italic;">
+            <i class="fas fa-info-circle mr-1"></i>Los clientes se registran desde la tienda
+        </p>
+    </div>
+    <div class="d-flex align-items-center" style="gap:.5rem;">
+        <span class="badge badge-pill" id="badge-total"
+              style="background:#EFF6FF;color:#3B82F6;font-size:.78rem;padding:.45em .9em;border-radius:50em;font-weight:600;">
+            <i class="fas fa-users mr-1"></i> Total: <span id="lbl-total">0</span>
+        </span>
+        <span class="badge badge-pill" id="badge-activos"
+              style="background:#ECFDF5;color:#10B981;font-size:.78rem;padding:.45em .9em;border-radius:50em;font-weight:600;">
+            <i class="fas fa-user-check mr-1"></i> Activos: <span id="lbl-activos">0</span>
+        </span>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex align-items-center justify-content-between">
+        <span style="font-weight:700;font-size:.875rem;color:#374151;">
+            <i class="fas fa-user-friends mr-2 text-primary"></i> Lista de Clientes
+        </span>
+    </div>
+    <div class="card-body">
+        <table id="table_clientes" class="display cell-border" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Correo</th>
+                    <th>Activo</th>
+                    <th>Fecha Registro</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+
+        var tablaClientes;
+
+        tablaClientes = $("#table_clientes").DataTable({
+            responsive: true,
+            ordering: false,
+            "ajax": {
+                url: '@Url.Action("ListarClientes", "Clientes")',
+                type: "GET",
+                dataType: "json",
+                dataSrc: function (json) {
+                    var total = json.data.length;
+                    var activos = json.data.filter(function (c) { return c.ACTIVO; }).length;
+                    $("#lbl-total").text(total);
+                    $("#lbl-activos").text(activos);
+                    return json.data;
+                }
+            },
+            "columns": [
+                { "data": "NOMBRE" },
+                { "data": "APELLIDO" },
+                { "data": "CORREO" },
+                {
+                    "data": "ACTIVO",
+                    "render": function (valor) {
+                        if (valor) {
+                            return '<span class="badge badge-success" style="font-size:.72rem;padding:.3em .65em;border-radius:50em;">Activo</span>';
+                        } else {
+                            return '<span class="badge badge-secondary" style="font-size:.72rem;padding:.3em .65em;border-radius:50em;">Inactivo</span>';
+                        }
+                    }
+                },
+                { "data": "FechaCreacion" },
+                {
+                    "data": null,
+                    "render": function (data) {
+                        var toggleTitle = data.ACTIVO ? "Desactivar cliente" : "Activar cliente";
+                        var toggleIcon = data.ACTIVO ? "fa-eye" : "fa-eye-slash";
+                        var toggleClass = data.ACTIVO ? "btn-outline-success" : "btn-outline-secondary";
+                        return '<div class="btn-group btn-group-sm">' +
+                            '<button type="button" class="btn ' + toggleClass + ' btn-toggle" title="' + toggleTitle + '" data-id="' + data.ID_CLIENTE + '">' +
+                            '<i class="fas ' + toggleIcon + '"></i></button>' +
+                            '<button type="button" class="btn btn-outline-danger btn-eliminar" title="Eliminar cliente" data-id="' + data.ID_CLIENTE + '">' +
+                            '<i class="fas fa-trash"></i></button>' +
+                            '</div>';
+                    },
+                    "orderable": false,
+                    "searchable": false,
+                    "width": "100px"
+                }
+            ],
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/2.3.7/i18n/es-ES.json"
+            }
+        });
+
+        // Toggle activo/inactivo
+        $("#table_clientes tbody").on("click", ".btn-toggle", function () {
+            var btn = $(this);
+            var id = btn.data("id");
+            var fila = btn.closest("tr");
+
+            jQuery.ajax({
+                url: '@Url.Action("ToggleActivo", "Clientes")',
+                type: "POST",
+                data: JSON.stringify({ id: id }),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (resp) {
+                    if (resp.resultado) {
+                        var rowData = tablaClientes.row(fila).data();
+                        rowData.ACTIVO = resp.activo;
+                        tablaClientes.row(fila).data(rowData).draw(false);
+
+                        // Recalculate summary badges
+                        var allData = tablaClientes.rows().data().toArray();
+                        var activos = allData.filter(function (c) { return c.ACTIVO; }).length;
+                        $("#lbl-total").text(allData.length);
+                        $("#lbl-activos").text(activos);
+                    } else {
+                        swal("Error", resp.mensaje, "error");
+                    }
+                },
+                error: function (err) {
+                    console.log(err);
+                    swal("Error", "No se pudo actualizar el estado del cliente.", "error");
+                }
+            });
+        });
+
+        // Eliminar cliente
+        $("#table_clientes tbody").on("click", ".btn-eliminar", function () {
+            var btn = $(this);
+            var id = btn.data("id");
+            var fila = btn.closest("tr");
+
+            swal({
+                title: "¿Está seguro?",
+                text: "Desea eliminar este cliente? Esta acción es irreversible.",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-danger",
+                confirmButtonText: "Sí, eliminar",
+                cancelButtonText: "Cancelar",
+                closeOnConfirm: false,
+                closeOnCancel: false
+            },
+            function (isConfirm) {
+                if (!isConfirm) {
+                    swal("Cancelado", "El cliente no fue eliminado.", "info");
+                    return;
+                }
+
+                jQuery.ajax({
+                    url: '@Url.Action("EliminarCliente", "Clientes")',
+                    type: "POST",
+                    data: JSON.stringify({ id: id }),
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (resp) {
+                        if (resp.resultado) {
+                            tablaClientes.row(fila).remove().draw();
+
+                            // Recalculate summary badges
+                            var allData = tablaClientes.rows().data().toArray();
+                            var activos = allData.filter(function (c) { return c.ACTIVO; }).length;
+                            $("#lbl-total").text(allData.length);
+                            $("#lbl-activos").text(activos);
+
+                            swal("Eliminado!", "El cliente fue eliminado con éxito.", "success");
+                        } else {
+                            swal("No se pudo eliminar", resp.mensaje, "error");
+                        }
+                    },
+                    error: function (err) {
+                        console.log(err);
+                        swal("Error", "Ocurrió un error al eliminar el cliente.", "error");
+                    }
+                });
+            });
+        });
+
+    </script>
+}

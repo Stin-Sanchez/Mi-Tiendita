@@ -4,65 +4,51 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<ol class="breadcrumb mb-4 mt-4">
-    <li class="breadcrumb-item"><a href="index.html">Mantenimiento</a></li>
-    <li class="breadcrumb-item active">Productos</li>
-</ol>
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <div>
+        <p class="small mb-0" style="color:#9ca3af;font-size:.78rem;">Mantenimiento</p>
+        <h1 class="h3 mb-0" style="font-size:1.35rem;font-weight:800;color:#111827;letter-spacing:-.02em;">Productos</h1>
+    </div>
+    <button type="button" class="btn btn-sm btn-success" onclick="abrirModal(null)">
+        <i class="fas fa-plus fa-sm mr-1"></i> Nuevo producto
+    </button>
+</div>
 
 <div class="card">
-    <div class="card-header">
-        <i class="fas  fa-boxes me-1"></i> Lista de Productos
+    <div class="card-header d-flex align-items-center justify-content-between">
+        <span style="font-weight:700;font-size:.875rem;color:#374151;">
+            <i class="fas fa-boxes mr-2 text-primary"></i> Lista de Productos
+        </span>
     </div>
     <div class="card-body">
-
-        <div class="row">
-
-            <div class="col-12 mb-3">
-
-                <button type="button" class="btn btn-success " onclick="abrirModal(null)">Nuevo producto </button>
-
-            </div>
-            <hr class="mb-4" />
-
-
-            <table id="table_productos" class="display cell-border" style="width:100%">
-
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Descripcion</th>
-                        <th>Marca</th>
-                        <th>Categoria</th>
-                        <th>Precio</th>
-                        <th>Stock</th> 
-                        <th>Foto</th>
-                        <th>Activo</th>
-                        <th>Acciones</th>
-                    </tr>
-
-
-                </thead>
-                <tbody>
-                </tbody>
-
-
-            </table>
-
-        </div>
-
+        <table id="table_productos" class="display cell-border" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripci&oacute;n</th>
+                    <th>Marca</th>
+                    <th>Categor&iacute;a</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Foto</th>
+                    <th>Activo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
     </div>
-
 </div>
 
 
 
 <!-- Modal -->
-<div class="modal fade" id="FormModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+<div class="modal fade" id="FormModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Registrar producto</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h1 class="modal-title" style="font-size:1rem;font-weight:700;" id="exampleModalLabel">Registrar producto</h1>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body ">
 
@@ -85,7 +71,7 @@
 
                     <div class="col-sm-6">
                         <label for="cmbMarca" class="form-label">Marca</label>
-                        <select id="cmbMarca" class="form-select">
+                        <select id="cmbMarca" class="form-control">
                           
                           
 
@@ -95,7 +81,7 @@
 
                     <div class="col-sm-6">
                         <label for="cmbCategoria" class="form-label">Categoria</label>
-                        <select id="cmbCategoria" class="form-select">
+                        <select id="cmbCategoria" class="form-control">
                           
                         </select>
 
@@ -116,7 +102,7 @@
                   
                     <div class="col-sm-12">
                         <label for="cmbActivo" class="form-label">Activo</label>
-                        <select id="cmbActivo" class="form-select">
+                        <select id="cmbActivo" class="form-control">
                             <option selected>Seleccione</option>
                             <option value="1">Si</option>
                             <option value="0">No</option>
@@ -155,7 +141,7 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                 <button type="button" class="btn btn-primary" onclick="guardarProducto()">Guardar</button>
             </div>
         </div>
@@ -265,24 +251,17 @@
                     {
                         "data": "ACTIVO", "render": function (valor) {
                             if (valor) {
-                                return '<span class="badge text-bg-success">SHI</span>'
-
+                                return '<span class="badge badge-success" style="font-size:.72rem;padding:.3em .65em;border-radius:50em;">S&iacute;</span>';
                             } else {
-                                return '<span class="badge text-bg-danger">ÑO</span>'
+                                return '<span class="badge badge-secondary" style="font-size:.72rem;padding:.3em .65em;border-radius:50em;">No</span>';
                             }
-
-
-
                         }
-
                     },
                     {
-                        "defaultContent": ' <button type="button" class="btn btn-primary btn-sm btn-editar"> <i class="fas fa-pen "></i> </button>' +
-                            ' <button type="button" class="btn btn-danger btn-sm ms-2 btn-eliminar"> <i class="fas fa-trash "></i> </button>',
+                        "defaultContent": '<div class="btn-group btn-group-sm"><button type="button" class="btn btn-outline-primary btn-editar" title="Editar"><i class="fas fa-pen"></i></button><button type="button" class="btn btn-outline-danger btn-eliminar" title="Eliminar"><i class="fas fa-trash"></i></button></div>',
                         "orderable": false,
                         "searchable": false,
-                        "width": "70px"
-
+                        "width": "90px"
                     }
                 ],
                 "language": {
@@ -518,4 +497,5 @@
 
     </script>
     }
+
 

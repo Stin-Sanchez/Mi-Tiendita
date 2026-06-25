@@ -1,0 +1,361 @@
+@{
+    ViewBag.Title = "Pedidos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Page heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <div>
+        <p class="small mb-0" style="color:#9ca3af;font-size:.78rem;">Administraci&oacute;n</p>
+        <h1 class="h3 mb-0" style="font-size:1.35rem;font-weight:800;color:#111827;letter-spacing:-.02em;">Pedidos</h1>
+    </div>
+</div>
+
+<!-- KPI row -->
+<div class="row mb-3" id="kpiRow">
+    <div class="col-xl-4 col-md-4 mb-3">
+        <div class="card" style="border-top:3px solid #3B82F6;">
+            <div class="card-body" style="padding:.9rem 1.1rem;">
+                <p style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin-bottom:.4rem;">
+                    Total pedidos del per&iacute;odo
+                </p>
+                <h2 style="font-size:1.7rem;font-weight:800;color:#111827;line-height:1;margin-bottom:.25rem;" id="kpiTotalPedidos">
+                    <i class="fas fa-circle-notch fa-spin" style="font-size:.9rem;color:#d1d5db;"></i>
+                </h2>
+                <p class="mb-0" style="color:#9ca3af;font-size:.73rem;">transacciones encontradas</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-md-4 mb-3">
+        <div class="card" style="border-top:3px solid #059669;">
+            <div class="card-body" style="padding:.9rem 1.1rem;">
+                <p style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin-bottom:.4rem;">
+                    Monto total
+                </p>
+                <h2 style="font-size:1.7rem;font-weight:800;color:#111827;line-height:1;margin-bottom:.25rem;" id="kpiMontoTotal">
+                    <i class="fas fa-circle-notch fa-spin" style="font-size:.9rem;color:#d1d5db;"></i>
+                </h2>
+                <p class="mb-0" style="color:#9ca3af;font-size:.73rem;">suma de todos los pedidos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-md-4 mb-3">
+        <div class="card" style="border-top:3px solid #d97706;">
+            <div class="card-body" style="padding:.9rem 1.1rem;">
+                <p style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin-bottom:.4rem;">
+                    Ticket promedio
+                </p>
+                <h2 style="font-size:1.7rem;font-weight:800;color:#111827;line-height:1;margin-bottom:.25rem;" id="kpiTicketPromedio">
+                    <i class="fas fa-circle-notch fa-spin" style="font-size:.9rem;color:#d1d5db;"></i>
+                </h2>
+                <p class="mb-0" style="color:#9ca3af;font-size:.73rem;">por transacci&oacute;n</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter bar -->
+<div class="card mb-3">
+    <div class="card-header py-2 d-flex align-items-center" style="gap:.5rem;">
+        <i class="fas fa-filter text-primary" style="font-size:.8rem;"></i>
+        <span style="font-weight:700;font-size:.875rem;color:#374151;">Filtros de b&uacute;squeda</span>
+    </div>
+    <div class="card-body" style="padding:.75rem 1rem;">
+        <div class="form-row align-items-end">
+            <div class="col-sm-3 mb-2">
+                <label class="small font-weight-bold mb-1">Desde</label>
+                <input type="date" id="txtDesde" class="form-control form-control-sm" />
+            </div>
+            <div class="col-sm-3 mb-2">
+                <label class="small font-weight-bold mb-1">Hasta</label>
+                <input type="date" id="txtHasta" class="form-control form-control-sm" />
+            </div>
+            <div class="col-sm-4 mb-2">
+                <label class="small font-weight-bold mb-1">ID Transacci&oacute;n</label>
+                <input type="text" id="txtIdTransaccion" class="form-control form-control-sm"
+                       placeholder="Dejar en blanco para ver todos" />
+            </div>
+            <div class="col-sm-2 mb-2 d-flex" style="gap:.4rem;">
+                <button class="btn btn-primary btn-sm flex-fill" id="btnBuscar">
+                    <i class="fas fa-search fa-sm mr-1"></i> Buscar
+                </button>
+                <button class="btn btn-success btn-sm flex-fill" id="btnExportar" title="Exportar a Excel">
+                    <i class="fas fa-file-excel fa-sm"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DataTable card -->
+<div class="card shadow">
+    <div class="card-header d-flex align-items-center justify-content-between py-2">
+        <span style="font-weight:700;font-size:.875rem;color:#374151;">
+            <i class="fas fa-shopping-bag mr-2 text-primary"></i> Lista de Pedidos
+        </span>
+        <span class="small text-muted" id="lblRangoFiltro"></span>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="tablaPedidos" class="display cell-border" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Producto</th>
+                        <th>Precio</th>
+                        <th>Cantidad</th>
+                        <th>Total</th>
+                        <th>ID Transacci&oacute;n</th>
+                        <th style="width:80px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Detail modal -->
+<div class="modal fade" id="modalDetalle" tabindex="-1" aria-labelledby="modalDetalleLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="border-bottom:1px solid #F3F4F6;">
+                <div>
+                    <h5 class="modal-title mb-0" id="modalDetalleLabel" style="font-size:1rem;font-weight:700;">
+                        Detalle del Pedido
+                    </h5>
+                    <p class="mb-0 small text-muted" id="modalSubtitulo"></p>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <!-- Info cards -->
+                <div class="row mb-3" id="modalInfoRow">
+                    <div class="col-sm-6 mb-2">
+                        <div style="background:#F9FAFB;border-radius:8px;padding:.65rem .9rem;">
+                            <p class="mb-0" style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9CA3AF;">Cliente</p>
+                            <p class="mb-0 font-weight-bold" id="dCliente" style="color:#111827;font-size:.9rem;">—</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 mb-2">
+                        <div style="background:#F9FAFB;border-radius:8px;padding:.65rem .9rem;">
+                            <p class="mb-0" style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9CA3AF;">Fecha de compra</p>
+                            <p class="mb-0 font-weight-bold" id="dFecha" style="color:#111827;font-size:.9rem;">—</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 mb-2">
+                        <div style="background:#F9FAFB;border-radius:8px;padding:.65rem .9rem;">
+                            <p class="mb-0" style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9CA3AF;">Producto</p>
+                            <p class="mb-0 font-weight-bold" id="dProducto" style="color:#111827;font-size:.9rem;">—</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 mb-2">
+                        <div style="background:#F9FAFB;border-radius:8px;padding:.65rem .9rem;">
+                            <p class="mb-0" style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9CA3AF;">Cantidad</p>
+                            <p class="mb-0 font-weight-bold" id="dCantidad" style="color:#111827;font-size:.9rem;">—</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 mb-2">
+                        <div style="background:#EFF6FF;border-radius:8px;padding:.65rem .9rem;border:1px solid #DBEAFE;">
+                            <p class="mb-0" style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#3B82F6;">Total</p>
+                            <p class="mb-0 font-weight-bold" id="dTotal" style="color:#1D4ED8;font-size:1rem;">—</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transaction ID badge -->
+                <div class="d-flex align-items-center mb-3" style="gap:.5rem;">
+                    <span style="font-size:.75rem;font-weight:600;color:#6B7280;">ID Transacci&oacute;n:</span>
+                    <span id="dIdTransaccion" class="badge badge-light" style="font-size:.78rem;font-family:monospace;background:#F3F4F6;color:#374151;padding:.3em .65em;border-radius:4px;letter-spacing:.04em;">—</span>
+                    <button class="btn btn-sm p-0 ml-1" id="btnCopiarTx" title="Copiar ID" style="color:#9CA3AF;background:none;border:none;font-size:.8rem;">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+
+                <hr style="border-color:#F3F4F6;margin:.5rem 0 1rem;">
+
+                <!-- Summary note -->
+                <p class="small text-muted mb-0">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Este pedido corresponde a una l&iacute;nea del historial. Para el detalle de &iacute;tems completos use la vista de ventas.
+                </p>
+
+            </div>
+            <div class="modal-footer" style="border-top:1px solid #F3F4F6;">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+<script>
+
+    var moneda = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+    var tablaPedidos;
+
+    /* ── Helper: compute date strings ──────────────────────────── */
+    function dateStr(d) {
+        return d.toISOString().slice(0, 10);
+    }
+
+    /* ── Init date inputs to last 30 days ─────────────────────── */
+    $(document).ready(function () {
+
+        var hoy   = new Date();
+        var hace30 = new Date();
+        hace30.setDate(hoy.getDate() - 30);
+
+        $("#txtDesde").val(dateStr(hace30));
+        $("#txtHasta").val(dateStr(hoy));
+        actualizarLabelRango();
+
+        /* ── DataTable ──────────────────────────────────────────── */
+        tablaPedidos = $("#tablaPedidos").DataTable({
+            responsive: true,
+            ordering: false,
+            ajax: {
+                url: '@Url.Action("ListarPedidos", "Pedidos")',
+                type: "GET",
+                dataType: "json",
+                data: function (d) {
+                    d.fechaInicio   = $("#txtDesde").val();
+                    d.fechaFin      = $("#txtHasta").val();
+                    d.idTransaccion = $("#txtIdTransaccion").val();
+                }
+            },
+            columns: [
+                { data: "FechaVenta" },
+                { data: "Cliente" },
+                { data: "Producto" },
+                {
+                    data: "Precio",
+                    render: function (val) { return moneda.format(val); }
+                },
+                { data: "Cantidad" },
+                {
+                    data: "Total",
+                    render: function (val) { return moneda.format(val); }
+                },
+                {
+                    data: "IdTransaccion",
+                    render: function (val) {
+                        return '<span style="font-family:monospace;font-size:.8rem;">' + (val || '—') + '</span>';
+                    }
+                },
+                {
+                    data: null,
+                    orderable: false,
+                    searchable: false,
+                    render: function (data, type, row) {
+                        return '<button class="btn btn-outline-primary btn-sm btn-ver-detalle" title="Ver detalle" ' +
+                               'data-row=\'' + JSON.stringify(row).replace(/'/g, "&#39;") + '\'>' +
+                               '<i class="fas fa-eye"></i></button>';
+                    }
+                }
+            ],
+            language: { url: "//cdn.datatables.net/plug-ins/2.3.7/i18n/es-ES.json" },
+            drawCallback: function () {
+                actualizarKPIs();
+            }
+        });
+
+        /* ── Buscar ─────────────────────────────────────────────── */
+        $("#btnBuscar").on("click", function () {
+            var btn = $(this);
+            btn.html('<i class="fas fa-spinner fa-spin fa-sm mr-1"></i> Buscando...').prop('disabled', true);
+            actualizarLabelRango();
+            tablaPedidos.ajax.reload(function () {
+                btn.html('<i class="fas fa-search fa-sm mr-1"></i> Buscar').prop('disabled', false);
+            });
+        });
+
+        /* ── Exportar → reusa el endpoint del Home ──────────────── */
+        $("#btnExportar").on("click", function () {
+            var desde = $("#txtDesde").val();
+            var hasta = $("#txtHasta").val();
+            var txId  = $("#txtIdTransaccion").val();
+
+            // Build a form and POST to the existing export action
+            var $form = $('<form method="POST" action="@Url.Action("ExportarVenta","Home")">' +
+                '<input name="fechaInicio" value="' + desde + '">' +
+                '<input name="fechaFin"   value="' + hasta  + '">' +
+                '<input name="IdTransaccion" value="' + txId + '">' +
+                '</form>');
+            $('body').append($form);
+            $form.submit();
+            $form.remove();
+        });
+
+        /* ── Ver detalle (event delegation) ─────────────────────── */
+        $("#tablaPedidos tbody").on("click", ".btn-ver-detalle", function () {
+            var rawJson = $(this).attr("data-row");
+            var row = JSON.parse(rawJson);
+            abrirModalDetalle(row);
+        });
+
+        /* ── Copiar ID transacción ───────────────────────────────── */
+        $("#btnCopiarTx").on("click", function () {
+            var tx = $("#dIdTransaccion").text();
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(tx).then(function () {
+                    $("#btnCopiarTx").html('<i class="fas fa-check" style="color:#059669;"></i>');
+                    setTimeout(function () {
+                        $("#btnCopiarTx").html('<i class="fas fa-copy"></i>');
+                    }, 1500);
+                });
+            }
+        });
+
+    }); // end ready
+
+    /* ── Open detail modal ──────────────────────────────────────── */
+    function abrirModalDetalle(row) {
+        $("#dCliente").text(row.Cliente      || '—');
+        $("#dFecha").text(row.FechaVenta     || '—');
+        $("#dProducto").text(row.Producto    || '—');
+        $("#dCantidad").text(row.Cantidad    != null ? row.Cantidad : '—');
+        $("#dTotal").text(row.Total          != null ? moneda.format(row.Total) : '—');
+        $("#dIdTransaccion").text(row.IdTransaccion || '—');
+        $("#modalSubtitulo").text("Cliente: " + (row.Cliente || '—') + " · " + (row.FechaVenta || ''));
+        $("#modalDetalle").modal("show");
+    }
+
+    /* ── Update KPI cards from current DataTable data ────────────  */
+    function actualizarKPIs() {
+        var allData = tablaPedidos.rows({ search: 'applied' }).data().toArray();
+
+        // Unique transactions by IdTransaccion
+        var txIds = {};
+        var sumaTotal = 0;
+        $.each(allData, function (i, row) {
+            var tx = row.IdTransaccion || ('__' + i);
+            txIds[tx] = true;
+            sumaTotal += parseFloat(row.Total) || 0;
+        });
+
+        var numTx = Object.keys(txIds).length;
+        var ticket = numTx > 0 ? (sumaTotal / numTx) : 0;
+
+        $("#kpiTotalPedidos").text(numTx > 0 ? numTx : allData.length);
+        $("#kpiMontoTotal").text(moneda.format(sumaTotal));
+        $("#kpiTicketPromedio").text(moneda.format(ticket));
+    }
+
+    /* ── Label showing active filter range ───────────────────────── */
+    function actualizarLabelRango() {
+        var desde = $("#txtDesde").val();
+        var hasta = $("#txtHasta").val();
+        if (desde && hasta) {
+            $("#lblRangoFiltro").text("Período: " + desde + " → " + hasta);
+        } else {
+            $("#lblRangoFiltro").text("");
+        }
+    }
+
+</script>
+}

@@ -1,109 +1,279 @@
-﻿<!DOCTYPE html>
-<html>
+<!DOCTYPE html>
+<html lang="es">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - Mi aplicación ASP.NET</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>@ViewBag.Title - Admin | Mi Tiendita</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @Styles.Render("~/Content/css")
-    @* Scripts.Render("~/bundles/modernizr") *@
+
+    <style>
+        /* layout structure — design in admin-indigo.css */
+        *, *::before, *::after { box-sizing: border-box; }
+        #wrapper { display: flex !important; }
+        .sidebar { position: fixed !important; top: 0; left: 0; height: 100vh; width: 220px !important; flex-shrink: 0; }
+        .sidebar-brand-icon-wrap {
+            width: 28px; height: 28px; background: #EFF6FF; border-radius: 7px;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .sidebar-brand-icon-wrap i { color: #3B82F6; font-size: .75rem; }
+        #content-wrapper { margin-left: 220px !important; width: calc(100% - 220px) !important; overflow-x: hidden; display: flex; flex-direction: column; }
+        #content { flex: 1 0 auto; }
+        .topbar .dropdown-toggle::after { display: none; }
+        .dropdown-divider { border-color: #F3F4F6 !important; margin: 4px 0 !important; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #D1D5DB; }
+    </style>
 </head>
-<body class="sb-nav-fixed">
 
-    <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
-        <!-- Navbar Brand-->
-        <a class="navbar-brand ps-3" href="index.html">Mi tiendita</a>
-        <!-- Sidebar Toggle-->
-        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
-        <!-- Navbar Search-->
+<body id="page-top">
 
-        @* <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
-            <div class="input-group">
-                <input class="form-control" type="text" placeholder="Search for..." aria-label="Search for..." aria-describedby="btnNavbarSearch" />
-                <button class="btn btn-primary" id="btnNavbarSearch" type="button"><i class="fas fa-search"></i></button>
-            </div>
-        </form> *@
+    <!-- Page Wrapper -->
+    <div id="wrapper">
 
+        <!-- =================== SIDEBAR =================== -->
+        <ul class="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
 
-        <!-- Navbar-->
-        <ul class="navbar-nav ms-auto me-0 me-md-3 my-2 my-md-0">
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                    <li><a class="dropdown-item" href="#!">Correo del usuario</a></li>
-                    <li><hr class="dropdown-divider" /></li>
-                    <li><a class="dropdown-item"href="@Url.Action("logout","Acceso")">Cerrar sesion</a></li>
-                </ul>
+            <!-- Brand -->
+            <a class="sidebar-brand" href="@Url.Action("Index","Home")">
+                <div class="sidebar-brand-icon-wrap">
+                    <i class="fas fa-store"></i>
+                </div>
+                <span class="sidebar-brand-text">MI TIENDITA</span>
+            </a>
+
+            <hr class="sidebar-divider my-0">
+
+            <!-- Dashboard -->
+            <li class="nav-item @(ViewContext.RouteData.Values["controller"].ToString() == "Home" && ViewContext.RouteData.Values["action"].ToString() == "Index" ? "active" : "")">
+                <a class="nav-link" href="@Url.Action("Index","Home")">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
             </li>
+
+            <!-- Usuarios -->
+            <li class="nav-item @(ViewContext.RouteData.Values["action"].ToString() == "Usuarios" ? "active" : "")">
+                <a class="nav-link" href="@Url.Action("Usuarios","Home")">
+                    <i class="fas fa-fw fa-users"></i>
+                    <span>Usuarios</span>
+                </a>
+            </li>
+
+            <!-- Clientes -->
+            <li class="nav-item @(ViewContext.RouteData.Values["controller"].ToString() == "Clientes" ? "active" : "")">
+                <a class="nav-link" href="@Url.Action("Index","Clientes")">
+                    <i class="fas fa-fw fa-user-friends"></i>
+                    <span>Clientes</span>
+                </a>
+            </li>
+
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Mantenimiento</div>
+
+            <!-- Categorias -->
+            <li class="nav-item @(ViewContext.RouteData.Values["action"].ToString() == "Categorias" ? "active" : "")">
+                <a class="nav-link" href="@Url.Action("Categorias","Mantenedor")">
+                    <i class="fas fa-fw fa-tags"></i>
+                    <span>Categor&iacute;as</span>
+                </a>
+            </li>
+
+            <!-- Marcas -->
+            <li class="nav-item @(ViewContext.RouteData.Values["action"].ToString() == "Marca" ? "active" : "")">
+                <a class="nav-link" href="@Url.Action("Marca","Mantenedor")">
+                    <i class="fas fa-fw fa-bookmark"></i>
+                    <span>Marcas</span>
+                </a>
+            </li>
+
+            <!-- Productos -->
+            <li class="nav-item @(ViewContext.RouteData.Values["action"].ToString() == "Producto" ? "active" : "")">
+                <a class="nav-link" href="@Url.Action("Producto","Mantenedor")">
+                    <i class="fas fa-fw fa-boxes"></i>
+                    <span>Productos</span>
+                </a>
+            </li>
+
+            <!-- Carga Masiva -->
+            <li class="nav-item @(ViewContext.RouteData.Values["controller"].ToString() == "CargaMasiva" ? "active" : "")">
+                <a class="nav-link" href="@Url.Action("Index","CargaMasiva")">
+                    <i class="fas fa-fw fa-file-upload"></i>
+                    <span>Carga Masiva</span>
+                </a>
+            </li>
+
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Operaciones</div>
+
+            <!-- Inventario -->
+            <li class="nav-item @(ViewContext.RouteData.Values["controller"].ToString() == "Inventario" ? "active" : "")">
+                <a class="nav-link" href="@Url.Action("Index","Inventario")">
+                    <i class="fas fa-fw fa-warehouse"></i>
+                    <span>Inventario</span>
+                </a>
+            </li>
+
+            <!-- Pedidos -->
+            <li class="nav-item @(ViewContext.RouteData.Values["controller"].ToString() == "Pedidos" ? "active" : "")">
+                <a class="nav-link" href="@Url.Action("Index","Pedidos")">
+                    <i class="fas fa-fw fa-shopping-bag"></i>
+                    <span>Pedidos</span>
+                </a>
+            </li>
+
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">An&aacute;lisis</div>
+
+            <!-- Reportes -->
+            <li class="nav-item @(ViewContext.RouteData.Values["controller"].ToString() == "Reportes" ? "active" : "")">
+                <a class="nav-link" href="@Url.Action("Index","Reportes")">
+                    <i class="fas fa-fw fa-chart-bar"></i>
+                    <span>Reportes</span>
+                </a>
+            </li>
+
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <!-- Sidebar Toggler -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+
         </ul>
-    </nav>
-    <div id="layoutSidenav">
-        <div id="layoutSidenav_nav">
-            <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
-                <div class="sb-sidenav-menu">
-                    <div class="nav">
-                        <div class="sb-sidenav-menu-heading">Resumen</div>
-                        <a class="nav-link" href="@Url.Action("Index","Home")">
-                            <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                            Dashboard
-                        </a> <a class="nav-link" href="@Url.Action("Usuarios","Home")">
-                            <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
-                            Usuarios
-                        </a>
-     
-                        <div class="sb-sidenav-menu-heading">Mantenimiento</div>
-                        <a class="nav-link" href="@Url.Action("Categorias","Mantenedor")">
-                            <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
-                            Categorias
-                        </a>
-                        <a class="nav-link" href="@Url.Action("Marca","Mantenedor")">
-                            <div class="sb-nav-link-icon"><i class="fas fa-bookmark"></i></div>
-                           Marcas
-                        </a> <a class="nav-link" href="@Url.Action("Producto","Mantenedor")">
-                            <div class="sb-nav-link-icon"><i class="fas fa-boxes"></i></div>
-                           Productos
-                        </a>
-                    </div>
-                </div>
-                <div class="sb-sidenav-footer">
-                    <div class="small">Logged in as:</div>
-                    Start Bootstrap
-                </div>
-            </nav>
-        </div>
-        <div id="layoutSidenav_content">
-            <main>
-                <div class="container-fluid px-4">
+        <!-- End Sidebar -->
+
+        <!-- ================= CONTENT WRAPPER ================= -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <div id="content">
+
+                <!-- TOPBAR -->
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+
+<span style="font-size:.8125rem;font-weight:500;color:#9CA3AF;">
+                        Panel de Administraci&oacute;n
+                    </span>
+
+                    <ul class="navbar-nav ml-auto">
+
+                        <!-- Alertas -->
+                        <li class="nav-item dropdown no-arrow mx-1">
+                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-bell fa-fw"></i>
+                                <span class="badge badge-danger badge-counter" id="badgeStockCritico" style="display:none">!</span>
+                            </a>
+                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                 aria-labelledby="alertsDropdown">
+                                <h6 class="dropdown-header">Alertas del sistema</h6>
+                                <a class="dropdown-item d-flex align-items-center" href="@Url.Action("Producto","Mantenedor")">
+                                    <div class="mr-3">
+                                        <div class="icon-circle bg-warning">
+                                            <i class="fas fa-exclamation-triangle text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="small text-gray-500">Stock cr&iacute;tico</div>
+                                        <span class="font-weight-bold" id="lblAlertaStock">Revisando inventario...</span>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item text-center small text-gray-500" href="@Url.Action("Producto","Mantenedor")">
+                                    Ver todos los productos &rarr;
+                                </a>
+                            </div>
+                        </li>
+
+                        <div class="topbar-divider d-none d-sm-block"></div>
+
+                        <!-- Usuario -->
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#"
+                               id="userDropdown" role="button" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="false"
+                               style="gap:8px;">
+                                <div style="width:30px;height:30px;background:#F3F4F6;border-radius:50%;
+                                            display:flex;align-items:center;justify-content:center;">
+                                    <i class="fas fa-user" style="color:#6B7280;font-size:.7rem"></i>
+                                </div>
+                                <span style="font-size:.8125rem;font-weight:500;color:#374151;">Administrador</span>
+                                <i class="fas fa-chevron-down" style="font-size:.6rem;color:#9CA3AF"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="#">
+                                    <i class="fas fa-user" style="color:#9CA3AF"></i> Mi perfil
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="@Url.Action("logout","Acceso")"
+                                   style="color:#DC2626 !important;">
+                                    <i class="fas fa-sign-out-alt" style="color:#DC2626"></i> Cerrar sesi&oacute;n
+                                </a>
+                            </div>
+                        </li>
+
+                    </ul>
+                </nav>
+                <!-- End Topbar -->
+
+                <!-- Contenido de la p&aacute;gina -->
+                <div class="container-fluid">
                     @RenderBody()
-
-
                 </div>
-            </main>
-            <footer class="py-4 bg-light mt-auto">
-                <div class="container-fluid px-4">
-                    <div class="d-flex align-items-center justify-content-between small">
-                        <div class="text-muted">Copyright &copy; Your Website 2023</div>
-                        <div>
-                            <a href="#">Privacy Policy</a>
-                            &middot;
-                            <a href="#">Terms &amp; Conditions</a>
-                        </div>
+
+            </div>
+            <!-- End Content -->
+
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>Copyright &copy; Mi Tiendita @DateTime.Now.Year &mdash; Panel Administrativo</span>
                     </div>
                 </div>
             </footer>
+
+        </div>
+        <!-- End Content Wrapper -->
+
+    </div>
+    <!-- End Page Wrapper -->
+
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Modal Logout -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cerrar sesi&oacute;n</h5>
+                    <button class="close" type="button" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    &iquest;Est&aacute;s seguro que deseas cerrar la sesi&oacute;n actual?
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+                    <a class="btn btn-primary" href="@Url.Action("logout","Acceso")">S&iacute;, cerrar sesi&oacute;n</a>
+                </div>
+            </div>
         </div>
     </div>
 
-
-
-    @* @RenderBody()
-        <li>@Html.ActionLink("Inicio", "Index", "Home")</li>
-        <li>@Html.ActionLink("Acerca de", "About", "Home")</li>
-        <li>@Html.ActionLink("Contacto", "Contact", "Home")</li>*@
-
     @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/sbadmin")
     @Scripts.Render("~/bundles/complementos")
-    @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("scripts", required: false)
 
 

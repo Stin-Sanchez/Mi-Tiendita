@@ -18,6 +18,8 @@ namespace MODULO_CLIENTE
 
             container.RegisterType(typeof(ICrudRepository<>), typeof(RepositoryImp<>));
             container.RegisterType<IClienteRepository, ClienteRepositoryImp>();
+            container.RegisterType<IMarcaRepository, MarcaRepositoryImp>();
+
             container.RegisterType<IClienteService, ClienteServiceImp>();
             container.RegisterType<IProductoRepository, ProductoRepositoryImp>();
             container.RegisterType<IVentaRepository, VentaRepositoryImp>();
